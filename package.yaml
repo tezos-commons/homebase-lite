@@ -1,0 +1,118 @@
+# SPDX-FileCopyrightText: 2022 Tezos Commons
+#
+# SPDX-License-Identifier: LicenseRef-MIT-TC
+
+name: homebase-lite
+version: 0
+author: Serokell <hi@serokell.io>
+github: tezos-commons/homebase-lite
+
+description:
+  Tezos smart contract for a decentralized voting system, based on “snapshots” of the blockchain
+
+copyright: 2022 Tezos Commons
+license-file: LICENSE
+
+maintainer: Maintainers of this package <we-maintain@this.package>
+
+# We enable all extensions that we consider harmless by default.
+default-extensions:
+  - AllowAmbiguousTypes
+  - BangPatterns
+  - BlockArguments
+  - ConstraintKinds
+  - DataKinds
+  - DefaultSignatures
+  - DeriveAnyClass
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DeriveTraversable
+  - DerivingStrategies
+  - DerivingVia
+  - EmptyCase
+  - FlexibleContexts
+  - FlexibleInstances
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - LambdaCase
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NamedFieldPuns
+  - NegativeLiterals
+  - NoStarIsType
+  - NumDecimals
+  - OverloadedLabels
+  - OverloadedStrings
+  - PatternSynonyms
+  - PolyKinds
+  - QuasiQuotes
+  - RankNTypes
+  - RecordWildCards
+  - RecursiveDo
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - StrictData
+  - TemplateHaskell
+  - TupleSections
+  - TypeApplications
+  - TypeFamilies
+  - TypeOperators
+  - UndecidableInstances
+  - UndecidableSuperClasses
+  - ViewPatterns
+
+ghc-options:
+  - -Weverything
+  - -Wno-missing-exported-signatures
+  - -Wno-missing-import-lists
+  - -Wno-missed-specialisations
+  - -Wno-all-missed-specialisations
+  - -Wno-unsafe
+  - -Wno-safe
+  - -Wno-missing-local-signatures
+  - -Wno-monomorphism-restriction
+  - -Wno-implicit-prelude
+  - -Wno-unused-packages
+
+when:
+  - condition: impl(ghc >= 8.10.0)
+    ghc-options:
+      - -Wno-prepositive-qualified-module
+      - -Wno-inferred-safe-imports
+      - -Wno-missing-safe-haskell-mode
+
+dependencies:
+  - name: base-noprelude
+    version: ">= 4.7 && < 5"
+
+library:
+  source-dirs: src
+  dependencies:
+    - morley-prelude
+    - universum
+
+executables:
+  homebase-lite:
+    main:                Main.hs
+    source-dirs:         app
+    dependencies:
+      - morley-prelude
+      - universum
+
+tests:
+  homebase-lite-test:
+    main:        Main.hs
+    source-dirs: test
+    build-tools: tasty-discover:tasty-discover
+
+    ghc-options:
+    - -threaded
+    - -eventlog
+    - '"-with-rtsopts=-N -A64m -AL256m"'
+
+    dependencies:
+    - cleveland
+    - morley-prelude
+    - tasty

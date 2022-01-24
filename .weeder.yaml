@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2022 Tezos Commons
+# SPDX-License-Identifier: LicenseRef-MIT-TC
+
+# We intentionally ignore some suggestions.
+- message:
+  - name: Redundant build-depends entry
+  - depends: base-noprelude
+
+- package:
+  - name: homebase-lite
+  - section:
+    - name: test:homebase-lite-test
+    - message:
+      - name: Weeds exported
+      - module:
+        - name: Tree
+        - identifier:
+          - ingredients
+          - main
