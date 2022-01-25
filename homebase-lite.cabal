@@ -1,0 +1,210 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           homebase-lite
+version:        0
+description:    Tezos smart contract for a decentralized voting system, based on “snapshots” of the blockchain
+homepage:       https://github.com/tezos-commons/homebase-lite#readme
+bug-reports:    https://github.com/tezos-commons/homebase-lite/issues
+author:         Serokell <hi@serokell.io>
+maintainer:     Maintainers of this package <we-maintain@this.package>
+copyright:      2022 Tezos Commons
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/tezos-commons/homebase-lite
+
+library
+  exposed-modules:
+      Indigo.Contracts.HomebaseLite
+  other-modules:
+      Paths_homebase_lite
+  hs-source-dirs:
+      src
+  default-extensions:
+      AllowAmbiguousTypes
+      BangPatterns
+      BlockArguments
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveAnyClass
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveTraversable
+      DerivingStrategies
+      DerivingVia
+      EmptyCase
+      FlexibleContexts
+      FlexibleInstances
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      MultiParamTypeClasses
+      MultiWayIf
+      NamedFieldPuns
+      NegativeLiterals
+      NoStarIsType
+      NumDecimals
+      OverloadedLabels
+      OverloadedStrings
+      PatternSynonyms
+      PolyKinds
+      QuasiQuotes
+      RankNTypes
+      RecordWildCards
+      RecursiveDo
+      ScopedTypeVariables
+      StandaloneDeriving
+      StrictData
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+      UndecidableInstances
+      UndecidableSuperClasses
+      ViewPatterns
+  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-unused-packages
+  build-depends:
+      base-noprelude >=4.7 && <5
+    , morley-prelude
+    , universum
+  if impl(ghc >= 8.10.0)
+    ghc-options: -Wno-prepositive-qualified-module -Wno-inferred-safe-imports -Wno-missing-safe-haskell-mode
+  default-language: Haskell2010
+
+executable homebase-lite
+  main-is: Main.hs
+  other-modules:
+      Paths_homebase_lite
+  hs-source-dirs:
+      app
+  default-extensions:
+      AllowAmbiguousTypes
+      BangPatterns
+      BlockArguments
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveAnyClass
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveTraversable
+      DerivingStrategies
+      DerivingVia
+      EmptyCase
+      FlexibleContexts
+      FlexibleInstances
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      MultiParamTypeClasses
+      MultiWayIf
+      NamedFieldPuns
+      NegativeLiterals
+      NoStarIsType
+      NumDecimals
+      OverloadedLabels
+      OverloadedStrings
+      PatternSynonyms
+      PolyKinds
+      QuasiQuotes
+      RankNTypes
+      RecordWildCards
+      RecursiveDo
+      ScopedTypeVariables
+      StandaloneDeriving
+      StrictData
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+      UndecidableInstances
+      UndecidableSuperClasses
+      ViewPatterns
+  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-unused-packages
+  build-depends:
+      base-noprelude >=4.7 && <5
+    , morley-prelude
+    , universum
+  if impl(ghc >= 8.10.0)
+    ghc-options: -Wno-prepositive-qualified-module -Wno-inferred-safe-imports -Wno-missing-safe-haskell-mode
+  default-language: Haskell2010
+
+test-suite homebase-lite-test
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Tree
+      Paths_homebase_lite
+  hs-source-dirs:
+      test
+  default-extensions:
+      AllowAmbiguousTypes
+      BangPatterns
+      BlockArguments
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveAnyClass
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveTraversable
+      DerivingStrategies
+      DerivingVia
+      EmptyCase
+      FlexibleContexts
+      FlexibleInstances
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      MultiParamTypeClasses
+      MultiWayIf
+      NamedFieldPuns
+      NegativeLiterals
+      NoStarIsType
+      NumDecimals
+      OverloadedLabels
+      OverloadedStrings
+      PatternSynonyms
+      PolyKinds
+      QuasiQuotes
+      RankNTypes
+      RecordWildCards
+      RecursiveDo
+      ScopedTypeVariables
+      StandaloneDeriving
+      StrictData
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+      UndecidableInstances
+      UndecidableSuperClasses
+      ViewPatterns
+  ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-unused-packages -threaded -eventlog "-with-rtsopts=-N -A64m -AL256m"
+  build-tool-depends:
+      tasty-discover:tasty-discover
+  build-depends:
+      base-noprelude >=4.7 && <5
+    , cleveland
+    , morley-prelude
+    , tasty
+  if impl(ghc >= 8.10.0)
+    ghc-options: -Wno-prepositive-qualified-module -Wno-inferred-safe-imports -Wno-missing-safe-haskell-mode
+  default-language: Haskell2010

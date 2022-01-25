@@ -1,0 +1,87 @@
+{
+    "hackage.nix": {
+        "branch": "master",
+        "description": "Automatically generated Nix expressions for Hackage",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "hackage.nix",
+        "rev": "4ef9bd3a32316ce236164c7ebff00ebeb33236e2",
+        "sha256": "1jgnim5c9vahr1h33zm1kgyrgh39bwph32kb8f98634409fi5apb",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/hackage.nix/archive/4ef9bd3a32316ce236164c7ebff00ebeb33236e2.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "haskell-nix-weeder": {
+        "branch": "master",
+        "description": "haskell.nix + weeder",
+        "homepage": null,
+        "owner": "serokell",
+        "repo": "haskell-nix-weeder",
+        "rev": "a959fce7499df473e13336959cba77fbc87f3b7f",
+        "sha256": "1pmlndvbhzxj1k5f87d9dxfa00zbvmkmvnbd1davzwg77bd639l0",
+        "type": "tarball",
+        "url": "https://github.com/serokell/haskell-nix-weeder/archive/a959fce7499df473e13336959cba77fbc87f3b7f.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "haskell.nix": {
+        "branch": "master",
+        "description": "Alternative Haskell Infrastructure for Nixpkgs",
+        "homepage": "https://input-output-hk.github.io/haskell.nix",
+        "owner": "input-output-hk",
+        "repo": "haskell.nix",
+        "rev": "14f740c7c8f535581c30b1697018e389680e24cb",
+        "sha256": "07mcd5daiqihzzyw2da11v45xxh8fz65a3g88v2i8cdk6ll7ysc3",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/haskell.nix/archive/14f740c7c8f535581c30b1697018e389680e24cb.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "master",
+        "description": "Pinned Nixpkgs tree (master follows nixos-unstable-small, only tags have stable history)",
+        "homepage": "",
+        "owner": "serokell",
+        "repo": "nixpkgs",
+        "rev": "be220b2dc47092c1e739bf6aaf630f29e71fe1c4",
+        "sha256": "0fsc6l47gvvs7p2dkbhkrri3gvz0qwjdqbi6d20r257ymbkq9lg0",
+        "type": "tarball",
+        "url": "https://github.com/serokell/nixpkgs/archive/be220b2dc47092c1e739bf6aaf630f29e71fe1c4.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "stackage.nix": {
+        "branch": "master",
+        "description": "Automatically generated Nix expressions of Stackage snapshots",
+        "homepage": "",
+        "owner": "input-output-hk",
+        "repo": "stackage.nix",
+        "rev": "48e1188855ca38f3b7e2a8dba5352767a2f0a8f7",
+        "sha256": "0mbgws8aci00rg9114zawqjdq4smc583pjfvcg4lpcmzx3bxvhz5",
+        "type": "tarball",
+        "url": "https://github.com/input-output-hk/stackage.nix/archive/48e1188855ca38f3b7e2a8dba5352767a2f0a8f7.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "tezos-packaging": {
+        "branch": "master",
+        "description": "Various form of distribution for tezos-related executables",
+        "homepage": "",
+        "owner": "serokell",
+        "repo": "tezos-packaging",
+        "rev": "ae70b2877cfee505fc353e1591d59c70d9d94a56",
+        "sha256": "078k3c1153l06q7icibhqcr4diq1h54mkdmvk11i90g6x3rc9h1p",
+        "type": "tarball",
+        "url": "https://github.com/serokell/tezos-packaging/archive/ae70b2877cfee505fc353e1591d59c70d9d94a56.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "xrefcheck": {
+        "branch": "v0.1.3",
+        "description": "Check cross-references in repository documents",
+        "homepage": "",
+        "owner": "serokell",
+        "repo": "xrefcheck",
+        "rev": "9520c2d2b0c38d61ebd9ebe17e3d6b2b4b0b2daf",
+        "sha256": "1c2vlbcp82pik26y583fc5m17k3s7ir8gvvli6pri4f6njfr8x8c",
+        "type": "tarball",
+        "url": "https://github.com/serokell/xrefcheck/archive/9520c2d2b0c38d61ebd9ebe17e3d6b2b4b0b2daf.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
+        "version": "0.1.3"
+    }
+}

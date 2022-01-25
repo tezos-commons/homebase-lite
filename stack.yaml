@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: 2022 Tezos Commons
+# SPDX-License-Identifier: LicenseRef-MIT-TC
+
+# To update hackage and stackage indexes used by CI run:
+# $ niv update hackage.nix; niv update stackage.nix
+resolver: lts-18.10
+
+packages:
+- .
+
+extra-deps:
+- morley-prelude-0.5.0
+- morley-1.16.2
+- lorentz-0.13.2
+- morley-client-0.1.0
+- cleveland-0.1.0
+
+- git:
+    https://gitlab.com/morley-framework/indigo.git
+  commit:
+    73487acf6e682115091fec5e148b936f0fa958c5 # master
+  subdirs:
+    - .
+
+- git:
+    https://gitlab.com/morley-framework/morley-ledgers.git
+    # ^ CI cannot use ssh, so we use http clone here
+  commit:
+    3a7d14cff8ea011e79ceec0bcdc1668bf987f7e9 # master
+  subdirs:
+    - code/morley-ledgers
+    - code/morley-ledgers-test
+
+# Required by morley
+- git: https://github.com/serokell/base-noprelude.git
+  commit: 1282e0b992b00089d55228a2aa9edc4a3581c319
+- hex-text-0.1.0.4
+- show-type-0.1.1
+- named-0.3.0.1
+- co-log-0.4.0.1
+- colourista-0.1.0.1
+- ansi-terminal-0.10.3
+- galois-field-1.0.2
+- elliptic-curve-0.3.0
+- pairing-1.1.0
+- protolude-0.2.4
+- poly-0.4.0.0
+- groups-0.4.1.0
+- crypto-sodium-0.0.5.0
+- NaCl-0.0.5.0
+- libsodium-1.0.18.2
+
+# Required by indigo
+- summoner-2.0.1.1
+- generic-data-0.8.3.0
+- neat-interpolation-0.3.2.6
+- optparse-applicative-0.15.1.0
+- megaparsec-8.0.0
+
+# Stable parts of morley available from Hackage
+- tasty-hunit-compat-0.2
