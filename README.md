@@ -11,6 +11,8 @@
 Homebase Lite is a Tezos smart contract for a decentralized voting system, based
 on “snapshots” of the blockchain.
 
+The contract specification is available in [`docs/specification.md`](docs/specification.md)
+
 ## Build Instructions
 
 Run `make` to build everything.
