@@ -8,10 +8,11 @@ module Indigo.Contracts.HomebaseLite
   , initialStorage
   ) where
 
-import Indigo
+import Indigo (ContractCode, compileIndigoContract)
 
 import Indigo.Contracts.HomebaseLite.Impl
+import Indigo.Contracts.HomebaseLite.Optimizer
 import Indigo.Contracts.HomebaseLite.Types
 
 homebaseLiteCode :: ContractCode Parameter Storage
-homebaseLiteCode = compileIndigoContract homebaseLiteContract
+homebaseLiteCode = optimize $ compileIndigoContract homebaseLiteContract
