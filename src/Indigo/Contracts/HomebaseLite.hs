@@ -2,8 +2,16 @@
 -- SPDX-License-Identifier: LicenseRef-MIT-TC
 
 module Indigo.Contracts.HomebaseLite
-  ( todo
+  ( Parameter(..)
+  , Storage(..)
+  , homebaseLiteCode
+  , initialStorage
   ) where
 
-todo :: IO ()
-todo = putTextLn "TODO"
+import Indigo
+
+import Indigo.Contracts.HomebaseLite.Impl
+import Indigo.Contracts.HomebaseLite.Types
+
+homebaseLiteCode :: ContractCode Parameter Storage
+homebaseLiteCode = compileIndigoContract homebaseLiteContract
