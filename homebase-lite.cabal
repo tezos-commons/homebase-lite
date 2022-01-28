@@ -23,6 +23,10 @@ source-repository head
 library
   exposed-modules:
       Indigo.Contracts.HomebaseLite
+      Indigo.Contracts.HomebaseLite.Impl
+      Indigo.Contracts.HomebaseLite.Impl.Admin
+      Indigo.Contracts.HomebaseLite.Impl.Vote
+      Indigo.Contracts.HomebaseLite.Types
   other-modules:
       Paths_homebase_lite
   hs-source-dirs:
@@ -76,6 +80,9 @@ library
   ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-unused-packages
   build-depends:
       base-noprelude >=4.7 && <5
+    , indigo
+    , morley
+    , morley-ledgers
     , morley-prelude
     , universum
   if impl(ghc >= 8.10.0)
@@ -137,8 +144,12 @@ executable homebase-lite
   ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-unused-packages
   build-depends:
       base-noprelude >=4.7 && <5
+    , homebase-lite
+    , lorentz
+    , morley
     , morley-prelude
-    , universum
+    , optparse-applicative
+    , with-utf8
   if impl(ghc >= 8.10.0)
     ghc-options: -Wno-prepositive-qualified-module -Wno-inferred-safe-imports -Wno-missing-safe-haskell-mode
   default-language: Haskell2010

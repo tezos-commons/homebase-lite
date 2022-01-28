@@ -86,20 +86,27 @@ when:
 dependencies:
   - name: base-noprelude
     version: ">= 4.7 && < 5"
+  - morley-prelude
 
 library:
   source-dirs: src
   dependencies:
     - morley-prelude
     - universum
+    - indigo
+    - morley
+    - morley-ledgers
 
 executables:
   homebase-lite:
     main:                Main.hs
     source-dirs:         app
     dependencies:
-      - morley-prelude
-      - universum
+      - homebase-lite
+      - morley
+      - lorentz
+      - optparse-applicative
+      - with-utf8
 
 tests:
   homebase-lite-test:
@@ -114,5 +121,4 @@ tests:
 
     dependencies:
     - cleveland
-    - morley-prelude
     - tasty

@@ -24,6 +24,9 @@ haddock-no-deps:
 clean:
 	$(MAKE_PACKAGE) clean
 
+stylish:
+	find src/ test/ app/ -name '*.hs' -exec stylish-haskell -i '{}' \;
+
 all:
 	$(MAKEU) PACKAGE=""
 test-all:
