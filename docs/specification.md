@@ -107,7 +107,7 @@ Instead, the `level` and time in which a proposal was submitted is saved, and th
 
 To obtain the outcome of a `completed` proposal, an external application will need to:
 
-1. Acquire the `level`, time and configuration used when the proposal was created.
+1. Acquire the `level`, and `quorum_threshold` used when the proposal was created.
 2. Get the list of all the voters for the proposal and the choice they picked
 3. Calculate the governance token held by each voter at that `level`, which will be equal to the weight of their vote.
 4. Sum up all vote weights, if their total number if bigger than the `quorum_threshold` then the proposal has the outcome of `passed` and the choice with the biggest cumulative weight has won. Otherwise the proposal outcome is `expired` and no choice has won.
