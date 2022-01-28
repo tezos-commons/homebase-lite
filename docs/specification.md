@@ -29,8 +29,8 @@ The contract is under active development, hence changes to the spec are possible
   - [Proposals](#proposals)
     - [`propose`](#propose)
     - [`vote`](#vote)
+    - [`verify_min_balance`](#verify_min_balance)
 <!-- TOC END -->
-
 
 # Requirements
 
@@ -162,12 +162,14 @@ Takes as input new values for all the **configuration options**, these new value
 ### `propose`
 
 Called by a `participant` to submit a new proposal.
-Takes as input an IPFS URI and a list of strings for the `n`  available choices.
+Takes as input an IPFS URI and a list of strings for the `n` available choices.
 
-- fails if the sender does not have a governance token amount of `minimum_balance` or more
 - fails if a proposal for the same IPFS URI was already submitted before
 - fails if the number of choices `n` is `0`
+- calls [`balance_of`][tzip-12-balance_of] on the FA2 governance token with [`verify_min_balance`](#verify_min_balance) as a callback
 - a new proposal for the given IPFS will be initialized (with a `submitted` status)
+
+[tzip-12-balance_of]: https://gitlab.com/tezos/tzip/-/blob/1728fcfe0ac90463ef15e6a994b6d6a15357e373/proposals/tzip-12/tzip-12.md#balance_of
 
 ### `vote`
 
@@ -179,3 +181,10 @@ Takes as input the proposal's IPFS URI and the choice made `x` .
 - fails if the sender already voted on this proposal before
 - fails if less than `vote_delay` has passed since the proposal submission, aka the proposal is still in a `sumbitted` status
 - fails if more than `expire_time` has passed since the proposal submission, aka the proposal has been completed (either as `expired` or `passed`)
+
+### `verify_min_balance`
+
+Callback for the [`balance_of` CPS view of FA2][tzip-12-balance_of], used to check the balance of a `participant` that used the [`propose`](#propose) entrypoint.
+Takes as input the list of tuples containing the `owner` , `token_id` and `balance` .
+
+- fails unless all of the `balance`s in the list are equal to  `minimum_balance` or more
