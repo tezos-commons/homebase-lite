@@ -92,7 +92,6 @@ library:
   source-dirs: src
   dependencies:
     - morley-prelude
-    - universum
     - indigo
     - morley
     - morley-ledgers
@@ -129,3 +128,5 @@ tests:
     - cleveland
     - tasty
     - fmt
+    - morley-ledgers
+    - data-default

@@ -164,8 +164,6 @@ test_configure =
             , cQuorumThreshold = 30
             , cMinimumBalance = 40
             }
-          toRPC (Configuration (Seconds a) (Seconds b) c d) =
-              ConfigurationRPC (SecondsRPC a) (SecondsRPC b) c d
       void $ withSender admin $ inBatch $ (,)
         <$> call contract (Call @"Add_maintainers") [admin]
         <*> call contract (Call @"Configure") conf

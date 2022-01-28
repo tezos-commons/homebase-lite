@@ -17,19 +17,34 @@ import Options.Applicative.Help.Pretty (Doc, linebreak)
 import System.Environment (withProgName)
 
 import Morley.CLI
+import Morley.Tezos.Address
 import Morley.Util.Named
 
 import Indigo.Contracts.HomebaseLite
 import Indigo.Contracts.HomebaseLite.Types
 
-programInfo :: DGitRevision -> Opt.ParserInfo CmdLnArgs
-programInfo gitRev = Opt.info (Opt.helper <*> argParser contracts gitRev) $
+programInfo :: DGitRevision -> Opt.ParserInfo (FA2Config, CmdLnArgs)
+programInfo gitRev = Opt.info (
+  (,) <$> fa2ConfigParser <*> argParser (contracts defFA2) gitRev <**> Opt.helper) $
   mconcat
   [ Opt.fullDesc
   , Opt.progDesc "This executable provides commands for development and interaction with the project."
   , Opt.header "Homebase-Lite"
   , Opt.footerDoc $ Just usageDoc
   ]
+
+fa2ConfigParser :: Opt.Parser FA2Config
+fa2ConfigParser = FA2Config <$> addrParser <*> tokenIdParser
+  where
+    addrParser = addressOption Nothing
+      (#name :! "fa2-address")
+      (#help :! "FA2 contract address")
+    tokenIdParser = fmap TokenId . Opt.option (Opt.maybeReader readMaybe) $
+      Opt.long "fa2-token-id" <>
+      Opt.metavar "NATURAL" <>
+      Opt.value 0 <>
+      Opt.help "FA2 token type identifier" <>
+      Opt.showDefault
 
 usageDoc :: Doc
 usageDoc = mconcat
@@ -38,10 +53,16 @@ usageDoc = mconcat
    , "  homebase-lite print --help", linebreak
    ]
 
-contracts :: ContractRegistry
-contracts = ContractRegistry $
+defFA2 :: FA2Config
+defFA2 = FA2Config
+  { fa2Addr = [ta|KT1AbgvM5D1wAVZbsB3WTCB54E94p2hn1Rb9|] -- arbitrary address
+  , fa2TokenId = TokenId 0
+  }
+
+contracts :: FA2Config -> ContractRegistry
+contracts fa2conf = ContractRegistry $
   [ "Homebase-Lite" ?:: ContractInfo
-    { ciContract = defaultContract homebaseLiteCode
+    { ciContract = defaultContract $ homebaseLiteCode fa2conf
     , ciIsDocumented = True
     , ciStorageParser = Just storageParser
     , ciStorageNotes = Nothing
@@ -82,5 +103,5 @@ storageParser = initialStorage
 
 main :: IO ()
 main = withUtf8 $ withProgName "homebase-lite" $ do
-  cmdLnArgs <- Opt.execParser (programInfo DGitRevisionUnknown)
-  runContractRegistry contracts cmdLnArgs `catchAny` (die . displayException)
+  (fa2conf, cmdLnArgs) <- Opt.execParser (programInfo DGitRevisionUnknown)
+  runContractRegistry (contracts fa2conf) cmdLnArgs `catchAny` (die . displayException)

@@ -17,3 +17,8 @@
         - identifier:
           - ingredients
           - main
+      - module:
+        - name: Test.Indigo.Contracts.HomebaseLite.AsRPC
+        - identifier:
+          - FA2ConfigRPC
+          - TokenIdRPC
