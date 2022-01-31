@@ -9,7 +9,7 @@ module Main
 
 import Data.Char (isUpper, toLower)
 import GHC.TypeLits (symbolVal)
-import Lorentz (DGitRevision(..), defaultContract)
+import Lorentz (DGitRevision(..), GitRepoSettings(..), defaultContract, mkDGitRevision)
 import Lorentz.ContractRegistry
 import Main.Utf8 (withUtf8)
 import qualified Options.Applicative as Opt
@@ -82,5 +82,6 @@ storageParser = initialStorage
 
 main :: IO ()
 main = withUtf8 $ withProgName "homebase-lite" $ do
-  cmdLnArgs <- Opt.execParser (programInfo DGitRevisionUnknown)
+  cmdLnArgs <- Opt.execParser . programInfo $
+    $mkDGitRevision $ GitRepoSettings $ mappend "https://github.com/tezos-commons/homebase-lite/commit/"
   runContractRegistry contracts cmdLnArgs `catchAny` (die . displayException)

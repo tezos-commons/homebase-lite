@@ -97,19 +97,17 @@ rec {
 
             # in non-release mode collect all *.dump-hi files (required for weeder)
             postInstall = if release then null else weeder-hacks.collect-dump-hi-files;
+
+            preBuild = ''
+              export MORLEY_DOC_GIT_COMMIT_SHA=${if release then pkgs.lib.escapeShellArg commitSha else "UNSPECIFIED"}
+              export MORLEY_DOC_GIT_COMMIT_DATE=${if release then pkgs.lib.escapeShellArg commitDate else "UNSPECIFIED"}
+            '';
           });
         }
 
         {
           # don't haddock dependencies
           doHaddock = false;
-
-          packages.autodoc-sandbox = {
-            preBuild = ''
-              export MORLEY_DOC_GIT_COMMIT_SHA=${if release then pkgs.lib.escapeShellArg commitSha else "UNSPECIFIED"}
-              export MORLEY_DOC_GIT_COMMIT_DATE=${if release then pkgs.lib.escapeShellArg commitDate else "UNSPECIFIED"}
-            '';
-          };
         }
       ];
   };
@@ -135,17 +133,19 @@ rec {
     (mapAttrs (pkgName: pkg: optional (pkg ? library) pkg.library.haddock) packages));
 
   # run some executables to produce contract documents
-  contracts-doc = { release, commitSha ? null, commitDate ? null }@releaseArgs: pkgs.runCommand "contracts-doc" {
+  contract-doc = { release, commitSha ? null, commitDate ? null }@releaseArgs: pkgs.runCommand "contract-doc" {
     buildInputs = [
-      (hs-pkgs releaseArgs).autodoc-sandbox.components.exes.autodoc-sandbox-registry
+      (hs-pkgs releaseArgs).homebase-lite.components.exes.homebase-lite
     ];
   } ''
     mkdir $out
-    cd $out
-    mkdir autodoc
-    autodoc-sandbox-registry document --name AutodocSandbox --output \
-      autodoc/AutodocSandboxContract.md
+    homebase-lite document --name Homebase-Lite --output \
+      $out/documentation.md
   '';
+  contract-doc-dev = contract-doc {release = false;};
+  contract-doc-release = { sha, date }@commitInfo: contract-doc ({release = true; commitSha = sha; commitDate = date;});
+  build-release = { sha, date }@commitInfo:
+    (hs-pkgs {release = true; optimize = true; commitSha = sha; commitDate = date;}).homebase-lite.components.exes.homebase-lite;
 
   # nixpkgs has weeder 2, but we use weeder 1
   weeder-legacy = pkgs.haskellPackages.callHackageDirect {
