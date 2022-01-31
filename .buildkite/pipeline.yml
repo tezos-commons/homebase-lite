@@ -84,3 +84,76 @@ steps:
     depends_on: build
     commands:
     - nix-build ci.nix -A haddock --no-out-link
+
+  - label: contract-doc
+    if: *not_scheduled_autodoc
+    key: contract-doc
+    depends_on: build
+    commands:
+    - nix-build ci.nix -A contract-doc-dev
+    - ln -s ./result/documentation.md documentation.md
+    artifact_paths:
+    - documentation.md
+
+  # for master branch we include commit info in the contract doc
+  - label: contract-doc (master)
+    key: contract-doc-master
+    if: &master_not_scheduled
+      build.branch == "master" && build.source != "schedule"
+    depends_on: build
+    commands:
+    - nix-build ci.nix -A contract-doc-release
+        --argstr sha "$(git rev-parse HEAD)"
+        --argstr date "$(git log HEAD -1 --format=%cd)"
+    - ln -s ./result/documentation.md documentation.md
+    artifact_paths:
+    - documentation.md
+
+  - label: crossref-verify generated doc
+    if: *not_scheduled_autodoc
+    key: crossref-verify-generated
+    depends_on:
+      - contract-doc
+      - contract-doc-master
+    commands:
+    - mkdir tmp
+    - if [ "$BUILDKITE_BRANCH" = "master" ];
+      then CONTRACT_DOC_STEP="contract-doc (master)";
+      else CONTRACT_DOC_STEP="contract-doc";
+      fi
+    - buildkite-agent artifact download documentation.md tmp/ --step "$$CONTRACT_DOC_STEP"
+    - nix run -f ci.nix xrefcheck -c xrefcheck --root tmp
+
+  - label: autodoc upload
+    if: *master_not_scheduled
+    depends_on: contract-doc-master
+    commands:
+    - mkdir tmp
+    - buildkite-agent artifact download documentation.md tmp/ --step "contract-doc (master)"
+    - ./scripts/ci/upload-autodoc.sh
+
+  - wait
+
+  - label: packaging
+    if: build.branch != "autodoc/master" && build.source != "schedule"
+    key: packaging
+    commands:
+    - nix-build ci.nix -A build-release -o homebase-lite-static
+        --argstr sha "$(git rev-parse HEAD)"
+        --argstr date "$(git log HEAD -1 --format=%cd)"
+    artifact_paths:
+    - ./homebase-lite-static/bin/homebase-lite
+
+  - label: create auto prerelease
+    if: *master_not_scheduled
+    depends_on: packaging
+    commands:
+    - mkdir assets
+    - buildkite-agent artifact download homebase-lite-static/bin/homebase-lite . --step packaging
+    - buildkite-agent artifact download documentation.md assets/ --step "contract-doc (master)"
+    - cp homebase-lite-static/bin/homebase-lite assets/
+    # delete existing auto-release if present
+    - nix run -f ci.nix pkgs.gitAndTools.gh -c gh release delete auto-release --yes || true
+    - nix run -f ci.nix pkgs.git -c git fetch && git tag -f auto-release && git push --force --tags
+    - nix run -f ci.nix pkgs.gitAndTools.gh -c gh release create --prerelease auto-release --title auto-release --notes ""
+    - nix run -f ci.nix pkgs.gitAndTools.gh -c gh release upload auto-release assets/*
