@@ -97,19 +97,16 @@ rec {
 
             # in non-release mode collect all *.dump-hi files (required for weeder)
             postInstall = if release then null else weeder-hacks.collect-dump-hi-files;
+            preBuild = ''
+              export MORLEY_DOC_GIT_COMMIT_SHA=${if release then pkgs.lib.escapeShellArg commitSha else "UNSPECIFIED"}
+              export MORLEY_DOC_GIT_COMMIT_DATE=${if release then pkgs.lib.escapeShellArg commitDate else "UNSPECIFIED"}
+            '';
           });
         }
 
         {
           # don't haddock dependencies
           doHaddock = false;
-
-          packages.autodoc-sandbox = {
-            preBuild = ''
-              export MORLEY_DOC_GIT_COMMIT_SHA=${if release then pkgs.lib.escapeShellArg commitSha else "UNSPECIFIED"}
-              export MORLEY_DOC_GIT_COMMIT_DATE=${if release then pkgs.lib.escapeShellArg commitDate else "UNSPECIFIED"}
-            '';
-          };
         }
       ];
   };

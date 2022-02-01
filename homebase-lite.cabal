@@ -149,12 +149,18 @@ executable homebase-lite
       ViewPatterns
   ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-unused-packages
   build-depends:
-      base-noprelude >=4.7 && <5
+      aeson-pretty
+    , base-noprelude >=4.7 && <5
+    , bytestring
+    , constraints
+    , fmt
     , homebase-lite
     , lorentz
     , morley
+    , morley-client
     , morley-prelude
     , optparse-applicative
+    , text
     , with-utf8
   if impl(ghc >= 8.10.0)
     ghc-options: -Wno-prepositive-qualified-module -Wno-inferred-safe-imports -Wno-missing-safe-haskell-mode
