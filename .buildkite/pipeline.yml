@@ -9,20 +9,25 @@ env:
 
 steps:
   - label: hlint
+    if: &not_scheduled_autodoc
+      build.branch != "autodoc/master" && build.branch != "master" && build.source != "schedule"
     commands:
     - nix run -f ci.nix pkgs.hlint -c
         ./scripts/lint.sh
 
   - label: reuse lint
+    if: *not_scheduled_autodoc
     commands:
     - nix run -f ci.nix pkgs.reuse -c
         reuse lint
 
   - label: check trailing whitespace
+    if: *not_scheduled_autodoc
     commands:
     - .buildkite/check-trailing-whitespace.sh
 
   - label: xrefcheck
+    if: *not_scheduled_autodoc
     commands:
     - nix run -f ci.nix xrefcheck -c xrefcheck
     retry:
@@ -30,11 +35,13 @@ steps:
         limit: 1
 
   - label: build
+    if: *not_scheduled_autodoc
     key: build
     commands:
     - nix-build ci.nix -A all-components
 
   - label: test
+    if: *not_scheduled_autodoc
     key: test
     depends_on: build
     commands:
@@ -42,6 +49,7 @@ steps:
     - ./result/bin/homebase-lite-test --cleveland-mode=disable-network
 
   - label: test-local-chain-011
+    if: *not_scheduled_autodoc
     env:
       TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8734"
     depends_on:
@@ -53,13 +61,26 @@ steps:
     - nix run -f ci.nix tezos-client -c
       ./result/bin/homebase-lite-test --cleveland-mode=only-network
 
+  - label: scheduled hangzhounet test
+    if: build.source == "schedule"
+    depends_on: build
+    env:
+      TASTY_CLEVELAND_NODE_ENDPOINT: "https://hangzhou.testnet.tezos.serokell.team"
+    commands: *network-test
+    retry:
+      automatic:
+        limit: 1
+    timeout_in_minutes: 240
+
   - label: weeder
+    if: *not_scheduled_autodoc
     depends_on: build
     commands:
     - nix-build ci.nix -A weeder-script
     - ./result
 
   - label: haddock
+    if: *not_scheduled_autodoc
     depends_on: build
     commands:
     - nix-build ci.nix -A haddock --no-out-link
