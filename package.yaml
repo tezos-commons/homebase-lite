@@ -96,6 +96,9 @@ library:
     - indigo
     - morley
     - morley-ledgers
+    - data-default
+    - template-haskell
+    - text
 
 executables:
   homebase-lite:
@@ -120,5 +123,9 @@ tests:
     - '"-with-rtsopts=-N -A64m -AL256m"'
 
     dependencies:
+    - homebase-lite
+    - lorentz
+    - morley
     - cleveland
     - tasty
+    - fmt

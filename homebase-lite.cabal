@@ -25,7 +25,9 @@ library
       Indigo.Contracts.HomebaseLite
       Indigo.Contracts.HomebaseLite.Impl
       Indigo.Contracts.HomebaseLite.Impl.Admin
+      Indigo.Contracts.HomebaseLite.Impl.Utils
       Indigo.Contracts.HomebaseLite.Impl.Vote
+      Indigo.Contracts.HomebaseLite.Optimizer
       Indigo.Contracts.HomebaseLite.Types
   other-modules:
       Paths_homebase_lite
@@ -80,10 +82,13 @@ library
   ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-unused-packages
   build-depends:
       base-noprelude >=4.7 && <5
+    , data-default
     , indigo
     , morley
     , morley-ledgers
     , morley-prelude
+    , template-haskell
+    , text
     , universum
   if impl(ghc >= 8.10.0)
     ghc-options: -Wno-prepositive-qualified-module -Wno-inferred-safe-imports -Wno-missing-safe-haskell-mode
@@ -158,6 +163,9 @@ test-suite homebase-lite-test
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
+      Test.Indigo.Contracts.HomebaseLite.Admin.Entrypoints
+      Test.Indigo.Contracts.HomebaseLite.AsRPC
+      Test.Indigo.Contracts.HomebaseLite.Utils
       Tree
       Paths_homebase_lite
   hs-source-dirs:
@@ -214,6 +222,10 @@ test-suite homebase-lite-test
   build-depends:
       base-noprelude >=4.7 && <5
     , cleveland
+    , fmt
+    , homebase-lite
+    , lorentz
+    , morley
     , morley-prelude
     , tasty
   if impl(ghc >= 8.10.0)
