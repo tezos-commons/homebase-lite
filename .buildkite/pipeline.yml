@@ -10,7 +10,7 @@ env:
 steps:
   - label: hlint
     if: &not_scheduled_autodoc
-      build.branch != "autodoc/master" && build.branch != "master" && build.source != "schedule"
+      build.branch != "autodoc/master" && build.branch != "test-autodoc-autorelease" && build.source != "schedule"
     commands:
     - nix run -f ci.nix pkgs.hlint -c
         ./scripts/lint.sh
@@ -88,7 +88,7 @@ steps:
   - label: contract-doc (master)
     key: contract-doc-master
     if: &master_not_scheduled
-      build.branch == "master" && build.source != "schedule"
+      build.branch == "test-autodoc-autorelease" && build.source != "schedule"
     depends_on: build
     commands:
     - nix-build ci.nix -A contract-doc-release
@@ -106,7 +106,7 @@ steps:
       - contract-doc-master
     commands:
     - mkdir tmp
-    - if [ "$BUILDKITE_BRANCH" = "master" ];
+    - if [ "$BUILDKITE_BRANCH" = "test-autodoc-autorelease" ];
       then CONTRACT_DOC_STEP="contract-doc (master)";
       else CONTRACT_DOC_STEP="contract-doc";
       fi
