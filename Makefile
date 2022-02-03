@@ -13,6 +13,14 @@ homebase-lite:
 	$(MAKE_PACKAGE) dev
 test:
 	$(MAKE_PACKAGE) test
+network-test:
+	export TASTY_CLEVELAND_DATA_DIR=$$(mktemp -d) \
+		TASTY_CLEVELAND_MODE=only-network \
+		TASTY_CLEVELAND_NODE_ENDPOINT=$(NODE_ENDPOINT) \
+		TASTY_CLEVELAND_MONEYBAG_SECRET_KEY=$(MONEYBAG_SECRET_KEY) \
+		; \
+	$(MAKE_PACKAGE) test; \
+	rm -r "$$TASTY_CLEVELAND_DATA_DIR"
 test-dumb-term:
 	$(MAKE_PACKAGE) test-dumb-term
 test-hide-successes:
