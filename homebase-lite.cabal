@@ -25,6 +25,10 @@ library
       Indigo.Contracts.HomebaseLite
       Indigo.Contracts.HomebaseLite.Impl
       Indigo.Contracts.HomebaseLite.Impl.Admin
+      Indigo.Contracts.HomebaseLite.Impl.Contract
+      Indigo.Contracts.HomebaseLite.Impl.Metadata
+      Indigo.Contracts.HomebaseLite.Impl.Metadata.Views
+      Indigo.Contracts.HomebaseLite.Impl.Storage
       Indigo.Contracts.HomebaseLite.Impl.Utils
       Indigo.Contracts.HomebaseLite.Impl.Vote
       Indigo.Contracts.HomebaseLite.Optimizer
@@ -83,11 +87,15 @@ library
       ViewPatterns
   ghc-options: -Weverything -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missed-specialisations -Wno-all-missed-specialisations -Wno-unsafe -Wno-safe -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-implicit-prelude -Wno-unused-packages
   build-depends:
-      base-noprelude >=4.7 && <5
+      aeson
+    , base-noprelude >=4.7 && <5
+    , bytestring
     , data-default
     , indigo
+    , lorentz
     , morley
     , morley-ledgers
+    , morley-metadata
     , morley-prelude
     , template-haskell
     , text
@@ -172,6 +180,8 @@ test-suite homebase-lite-test
   other-modules:
       Test.Indigo.Contracts.HomebaseLite.Admin.Entrypoints
       Test.Indigo.Contracts.HomebaseLite.AsRPC
+      Test.Indigo.Contracts.HomebaseLite.Metadata.Data
+      Test.Indigo.Contracts.HomebaseLite.Metadata.Views
       Test.Indigo.Contracts.HomebaseLite.PropertyTests
       Test.Indigo.Contracts.HomebaseLite.Utils
       Test.Indigo.Contracts.HomebaseLite.Vote.Entrypoints
@@ -239,10 +249,13 @@ test-suite homebase-lite-test
     , lorentz
     , morley
     , morley-ledgers
+    , morley-metadata
+    , morley-metadata-test
     , morley-prelude
     , o-clock
     , tasty
     , tasty-hedgehog
+    , text
   if impl(ghc >= 8.10.0)
     ghc-options: -Wno-prepositive-qualified-module -Wno-inferred-safe-imports -Wno-missing-safe-haskell-mode
   default-language: Haskell2010

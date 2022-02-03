@@ -6,7 +6,8 @@
 # Settings
 ###########################################################################
 
-- arguments: [-XTypeApplications, -XRecursiveDo, -XBlockArguments]
+- arguments: [-XTemplateHaskell, -XQuasiQuotes, -XTypeApplications,
+    -XRecursiveDo, -XBlockArguments]
 
 # These are just too annoying
 - ignore: { name: Redundant do }
