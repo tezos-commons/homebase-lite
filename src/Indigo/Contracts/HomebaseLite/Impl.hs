@@ -21,8 +21,10 @@ initialStorage
   -> ("voteDelay" :! Seconds)
   -> ("quorumThreshold" :! Natural)
   -> ("minimumBalance" :! Natural)
+  -> ("fa2config" :! FA2Config)
   -> Storage
 initialStorage (N admin) (N expireTime) (N voteDelay) (N quorumThreshold) (N minimumBalance)
+  (N fa2config)
   = Storage
     { sAdmin = admin
     , sAdminCandidate = admin
@@ -33,6 +35,7 @@ initialStorage (N admin) (N expireTime) (N voteDelay) (N quorumThreshold) (N min
       , cQuorumThreshold = quorumThreshold
       , cMinimumBalance = minimumBalance
       }
+    , sFA2Config = fa2config
     , sProposals = def
     , sVotes = def
     }

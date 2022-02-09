@@ -92,7 +92,6 @@ library:
   source-dirs: src
   dependencies:
     - morley-prelude
-    - universum
     - indigo
     - morley
     - morley-ledgers
@@ -110,6 +109,12 @@ executables:
       - lorentz
       - optparse-applicative
       - with-utf8
+      - text
+      - aeson-pretty
+      - fmt
+      - bytestring
+      - constraints
+      - morley-client
 
 tests:
   homebase-lite-test:
@@ -129,3 +134,5 @@ tests:
     - cleveland
     - tasty
     - fmt
+    - morley-ledgers
+    - data-default
