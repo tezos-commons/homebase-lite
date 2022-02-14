@@ -91,11 +91,11 @@ dependencies:
 library:
   source-dirs: src
   dependencies:
-    - morley-prelude
+    - data-default
     - indigo
     - morley
     - morley-ledgers
-    - data-default
+    - morley-prelude
     - template-haskell
     - text
 
@@ -104,17 +104,17 @@ executables:
     main:                Main.hs
     source-dirs:         app
     dependencies:
-      - homebase-lite
-      - morley
-      - lorentz
-      - optparse-applicative
-      - with-utf8
-      - text
       - aeson-pretty
-      - fmt
       - bytestring
       - constraints
+      - fmt
+      - homebase-lite
+      - lorentz
+      - morley
       - morley-client
+      - optparse-applicative
+      - text
+      - with-utf8
 
 tests:
   homebase-lite-test:
@@ -128,11 +128,15 @@ tests:
     - '"-with-rtsopts=-N -A64m -AL256m"'
 
     dependencies:
+    - cleveland
+    - containers
+    - data-default
+    - fmt
+    - hedgehog
     - homebase-lite
     - lorentz
     - morley
-    - cleveland
-    - tasty
-    - fmt
     - morley-ledgers
-    - data-default
+    - o-clock
+    - tasty
+    - tasty-hedgehog
