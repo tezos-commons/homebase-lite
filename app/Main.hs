@@ -1,15 +1,12 @@
 -- SPDX-FileCopyrightText: 2022 Tezos Commons
 -- SPDX-License-Identifier: LicenseRef-MIT-TC
 
-{-# LANGUAGE OverloadedLists #-}
-
 module Main
   ( main
   ) where
 
 import Lorentz
-  (Contract, DGitRevision(..), GitRepoSettings(..), NiceStorage, attachDocCommons, buildMarkdownDoc,
-  defaultContract, docItemToMarkdown, mkDGitRevision, niceStorageEvi, printLorentzValue,
+  (NiceStorage, attachDocCommons, buildMarkdownDoc, def, niceStorageEvi, printLorentzValue,
   toMichelsonContract, toVal, zeroMutez)
 
 import Data.Aeson.Encode.Pretty (encodePretty, encodePrettyToTextBuilder)
@@ -33,10 +30,10 @@ import Morley.Micheline (Expression, toExpression)
 import Morley.Michelson.Analyzer (analyze)
 import Morley.Michelson.Printer (printTypedContract)
 import Morley.Michelson.Typed (cCode)
-import Morley.Util.Markdown (HeaderLevel(..))
 import Morley.Util.Named (Name(..), pattern (:!), type (:!))
 
 import Indigo.Contracts.HomebaseLite
+import Indigo.Contracts.HomebaseLite.Impl.Metadata (gitRev, versionString)
 import Indigo.Contracts.HomebaseLite.Types
 
 fa2ConfigParser :: Opt.Parser ("fa2config" :! FA2Config)
@@ -52,15 +49,29 @@ fa2ConfigParser = fmap (#fa2config :!) $ FA2Config <$> addrParser <*> tokenIdPar
       Opt.help "FA2 token type identifier" <>
       Opt.showDefault
 
+contractMetadataConfigParser :: Opt.Parser ("metadataConfig" :! MetadataConfig)
+contractMetadataConfigParser = fmap (#metadataConfig :!) $ MetadataConfig
+  <$> nameParser <*> descParser
+  where
+    nameParser = Opt.strOption $
+      Opt.long "contract-name" <>
+      Opt.metavar "TEXT" <>
+      Opt.value (mcName def) <>
+      Opt.help "Contract name for TZIP-16 metadata" <>
+      Opt.showDefault
+    descParser = Opt.strOption $
+      Opt.long "contract-description" <>
+      Opt.metavar "TEXT" <>
+      Opt.value (mcDescription def) <>
+      Opt.help "Contract description for TZIP-16 metadata" <>
+      Opt.showDefault
+
 usageDoc :: Doc
 usageDoc = mconcat
    [ "You can use help for specific COMMAND", linebreak
    , "EXAMPLE:", linebreak
    , "  homebase-lite print --help", linebreak
    ]
-
-contract :: Contract Parameter Storage ()
-contract = defaultContract $ homebaseLiteCode
 
 storageParser :: Opt.Parser Storage
 storageParser = initialStorage
@@ -70,6 +81,7 @@ storageParser = initialStorage
   <*> quorumThresholdParser
   <*> minimumBalanceParser
   <*> fa2ConfigParser
+  <*> contractMetadataConfigParser
   where
     adminParser = (#admin :!) <$> addressOption Nothing
       (#name :! "admin")
@@ -106,7 +118,7 @@ argParser = Opt.subparser $ mconcat $
   ]
   where
     contractName = "homebase-lite"
-    compiledContract = toMichelsonContract $ contract
+    compiledContract = toMichelsonContract lorentzContract
 
     printSubCmd = mkCommandParser "print" "Dump a contract in form of Michelson code" $
       (<*> michelineOption) $
@@ -119,7 +131,7 @@ argParser = Opt.subparser $ mconcat $
 
     documentSubCmd = mkCommandParser "document" "Dump contract documentation in Markdown" $
       outputOptions <&> \mOutput -> writeFunc (contractName <> ".md") mOutput $
-        buildMarkdownDoc $ attachDocCommons gitRev contract
+        buildMarkdownDoc $ attachDocCommons gitRev lorentzContract
 
     analyzerSubCmd =
       mkCommandParser "analyze" "Analyze the contract and prints statistics about it." $
@@ -140,12 +152,12 @@ argParser = Opt.subparser $ mconcat $
         putStrLn $ "Originating " <> name <> "..."
         env <- mkMorleyClientEnv cconf
         (_, addr) <- runMorleyClientM env $ do
-          lOriginateContract False (mkAliasHint name) (AddressResolved sAdmin) zeroMutez
-            contract storage Nothing
+          lOriginateContract True (mkAliasHint name) (AddressResolved sAdmin) zeroMutez
+            lorentzContract storage Nothing
         putStrLn $ "Originated " <> name <> " as " <> pretty addr
 
     versionSubCmd = mkCommandParser "version" "Show binary revision number" $
-      pure $ putStrLn $ toLazyText $ docItemToMarkdown (HeaderLevel 0) gitRev
+      pure $ putStrLn versionString
 
     nameOption = Opt.strOption $ mconcat
       [ Opt.short 'n'
@@ -182,9 +194,6 @@ argParser = Opt.subparser $ mconcat $
 
     toExpressionHelper :: forall st'. NiceStorage st' => st' -> Expression
     toExpressionHelper = toExpression . toVal \\ niceStorageEvi @st'
-
-gitRev :: DGitRevision
-gitRev = $mkDGitRevision $ GitRepoSettings ("https://github.com/tezos-commons/homebase-lite/commit/" <>)
 
 main :: IO ()
 main = withUtf8 $ withProgName "homebase-lite" $ do

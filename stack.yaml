@@ -31,6 +31,15 @@ extra-deps:
     - code/morley-ledgers
     - code/morley-ledgers-test
 
+- git:
+    https://gitlab.com/morley-framework/morley-metadata.git
+    # ^ CI cannot use ssh, so we use http clone here
+  commit:
+    5a54cc98931327f6f110e3a34f6f23176c064396 # master
+  subdirs:
+    - code/morley-metadata
+    - code/morley-metadata-test
+
 # Required by morley
 - git: https://github.com/serokell/base-noprelude.git
   commit: 1282e0b992b00089d55228a2aa9edc4a3581c319

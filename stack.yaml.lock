@@ -79,6 +79,32 @@ packages:
     git: https://gitlab.com/morley-framework/morley-ledgers.git
     commit: 3a7d14cff8ea011e79ceec0bcdc1668bf987f7e9
 - completed:
+    subdir: code/morley-metadata
+    name: morley-metadata
+    version: '0'
+    git: https://gitlab.com/morley-framework/morley-metadata.git
+    pantry-tree:
+      size: 1216
+      sha256: 984687f727970755f87df34cc6fce0ee4fa3a5d60b091373feec4b164c8a0648
+    commit: 5a54cc98931327f6f110e3a34f6f23176c064396
+  original:
+    subdir: code/morley-metadata
+    git: https://gitlab.com/morley-framework/morley-metadata.git
+    commit: 5a54cc98931327f6f110e3a34f6f23176c064396
+- completed:
+    subdir: code/morley-metadata-test
+    name: morley-metadata-test
+    version: '0'
+    git: https://gitlab.com/morley-framework/morley-metadata.git
+    pantry-tree:
+      size: 600
+      sha256: 15de1bae7700e766e9bc60d2e6beefa901a9afeec0fb661609c0b88e129d924d
+    commit: 5a54cc98931327f6f110e3a34f6f23176c064396
+  original:
+    subdir: code/morley-metadata-test
+    git: https://gitlab.com/morley-framework/morley-metadata.git
+    commit: 5a54cc98931327f6f110e3a34f6f23176c064396
+- completed:
     name: base-noprelude
     version: 4.14.3.0
     git: https://github.com/serokell/base-noprelude.git

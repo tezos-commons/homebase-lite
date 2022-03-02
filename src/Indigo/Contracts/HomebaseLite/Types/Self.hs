@@ -9,11 +9,17 @@ module Indigo.Contracts.HomebaseLite.Types.Self
   , Seconds(..)
   , ProposalInfo(..)
   , FA2Config(..)
+  , MetadataConfig(..)
   ) where
 
-import Indigo
+import Indigo hiding ((<>))
 
+import Data.Char (isLower, isUpper, toLower)
+import qualified Data.Text as T
+
+import Lorentz.Annotation (AnnOptions(..), annOptions)
 import Lorentz.Contracts.Spec.FA2Interface (BalanceResponseItem, TokenId)
+import Lorentz.Contracts.Spec.TZIP16Interface (MetadataMap)
 
 data Parameter
   = Set_admin Address
@@ -42,7 +48,10 @@ data Configuration = Configuration
   , cMinimumBalance :: Natural
   }
   deriving stock (Generic, Show)
-  deriving anyclass (IsoValue, HasAnnotation)
+  deriving anyclass (IsoValue)
+
+instance HasAnnotation Configuration where
+  annOptions = myAnnOptions
 
 [typeDoc| Configuration "Options defining the behaviour and life-cycle of proposals."|]
 
@@ -54,7 +63,10 @@ data ProposalInfo = ProposalInfo
   , piChoices :: [MText]
   }
   deriving stock (Generic, Show)
-  deriving anyclass (IsoValue, HasAnnotation)
+  deriving anyclass (IsoValue)
+
+instance HasAnnotation ProposalInfo where
+  annOptions = myAnnOptions
 
 [typeDoc| ProposalInfo "Information defining a proposal."|]
 
@@ -73,9 +85,13 @@ data Storage = Storage
   , sProposals :: BigMap ("proposal_uri" :! URI) ProposalInfo
   , sVotes :: BigMap ("proposal_uri" :! URI, "voter_address" :! Address)
       ("vote_choice" :! Natural)
+  , sMetadata :: MetadataMap BigMap
   }
   deriving stock (Generic, Show)
-  deriving anyclass (IsoValue, HasAnnotation)
+  deriving anyclass (IsoValue)
+
+instance HasAnnotation Storage where
+  annOptions = myAnnOptions
 
 [typeDoc| Storage "Contract storage."|]
 
@@ -86,4 +102,34 @@ data FA2Config = FA2Config
   deriving stock (Generic, Show)
   deriving anyclass (IsoValue, HasAnnotation)
 
-[typeDoc| FA2Config "Parameters defining governance token contract and type" |]
+instance TypeHasDoc FA2Config where
+  typeDocMdDescription = "Parameters defining governance token contract and type"
+  typeDocHaskellRep = homomorphicTypeDocHaskellRep
+
+data MetadataConfig = MetadataConfig
+  { mcName :: Text
+  , mcDescription :: Text
+  }
+
+instance Default MetadataConfig where
+  def = MetadataConfig "Homebase-Lite" "Offchain, decentralized voting system."
+
+myAnnOptions :: AnnOptions
+myAnnOptions = AnnOptions stripPrefix
+
+-- this is cloned from "Morley.Michelson.Typed.Haskell.Doc"
+-- [TODO: morley#759]: Remove this when 'dropPrefixThen' behaves the same, or this whole
+-- manual tweaking becomes unnecessary.
+stripPrefix :: Text -> Text
+stripPrefix fieldName =
+  case T.uncons $ T.dropWhile isLower fieldName of
+    Nothing -> error $ "Field '" <> fieldName <> "' has no prefix"
+    Just (c, cs) ->
+      -- For fields like @ciUSPosition@ we should not lead the first letter
+      -- to lower case like @uSPosition@.
+      let isAbbreviation = case T.uncons cs of
+            Just (c2, _)
+              | isUpper c2 -> True
+              | otherwise -> False
+            Nothing -> False
+      in T.cons (if isAbbreviation then c else toLower c) cs

@@ -108,4 +108,4 @@ Please also note that there is no way to change the fa2 contract address after t
 
 Upon successful origination, the contract's address is printed to stdout and stored in `tezos-client`'s alias store with the alias `homebase-lite`. Note that if the alias already exists it will be overwritten. You can specify a different alias with the `--name` option.
 
-You can also specify FA2 token id and any other initial storage parameters. See `homebase-lite originate --help` for more information.
+You can also specify FA2 token id and other initial storage parameters. See `homebase-lite originate --help` for more information.

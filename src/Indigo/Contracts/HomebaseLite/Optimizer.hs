@@ -5,7 +5,7 @@ module Indigo.Contracts.HomebaseLite.Optimizer
     ( optimize
     ) where
 
-import Indigo (ContractCode, optimizeLorentzWithConf)
+import Indigo (optimizeLorentzWithConf, (:->))
 
 import Data.Default (def)
 import Data.Type.Equality ((:~:)(Refl))
@@ -17,7 +17,7 @@ import Morley.Util.Peano (Decrement, Drop, IsLongerOrSameLength, IsLongerThan, N
 import Morley.Util.PeanoNatural (PeanoNatural(..), fromPeanoNatural)
 import Morley.Util.Type (type (++))
 
-optimize :: ContractCode ps st -> ContractCode ps st
+optimize :: inp :-> out -> inp :-> out
 optimize = optimizeLorentzWithConf optimizerConf
 
 -- | Turn rule fixpoint into rule.
