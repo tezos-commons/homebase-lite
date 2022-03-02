@@ -91,10 +91,14 @@ dependencies:
 library:
   source-dirs: src
   dependencies:
+    - aeson
+    - bytestring
     - data-default
     - indigo
+    - lorentz
     - morley
     - morley-ledgers
+    - morley-metadata
     - morley-prelude
     - template-haskell
     - text
@@ -137,6 +141,9 @@ tests:
     - lorentz
     - morley
     - morley-ledgers
+    - morley-metadata
+    - morley-metadata-test
     - o-clock
     - tasty
     - tasty-hedgehog
+    - text

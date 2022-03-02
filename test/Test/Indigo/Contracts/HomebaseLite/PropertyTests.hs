@@ -44,10 +44,10 @@ genericScenario tokenCount expectation f = scenarioEmulated do
   let stor = FA2.mkStorage meta [((holder, FA2.TokenId 0), tokenCount)] []
       meta = FA2.mkTokenMetadata "g" "governance" "0"
   fa2 <- originateSimple "FA2" stor (FA2.fa2Contract def)
-  (admin, contract) <- deployContractWithConf FA2Config
+  (admin, contract) <- deployContractWithConf (Just FA2Config
     { fa2Addr = toAddress fa2
     , fa2TokenId = TokenId 0
-    } id
+    }) id
   expectation contract $ f holder admin contract
 
 -- | This checks some invariants on the primary workflow:

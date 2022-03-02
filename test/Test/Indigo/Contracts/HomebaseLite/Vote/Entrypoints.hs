@@ -1,7 +1,6 @@
 -- SPDX-FileCopyrightText: 2022 Tezos Commons
 -- SPDX-License-Identifier: LicenseRef-MIT-TC
 
-{-# LANGUAGE OverloadedLists, PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Test.Indigo.Contracts.HomebaseLite.Vote.Entrypoints
@@ -9,18 +8,13 @@ module Test.Indigo.Contracts.HomebaseLite.Vote.Entrypoints
   , test_vote
   ) where
 
-import Lorentz (CustomError, IsError, MText, MustHaveErrorArg)
+import Lorentz (MText, mkBigMap)
 
-import Data.Default
 import Test.Tasty (TestTree, testGroup)
 
-import qualified Indigo.Contracts.FA2Sample as FA2
-import qualified Lorentz.Contracts.Spec.FA2Interface as FA2
 import Morley.Tezos.Core
-import Morley.Util.Label
 import Morley.Util.Named
 import Test.Cleveland
-import Test.Cleveland.Lorentz.Types (toAddress)
 
 import Indigo.Contracts.HomebaseLite
 import Indigo.Contracts.HomebaseLite.Types
@@ -30,7 +24,7 @@ import Test.Indigo.Contracts.HomebaseLite.Utils
 test_propose :: TestTree
 test_propose = testGroup "propose entrypoint"
   [ testScenario "works" $ scenario do
-      (holder, _, contract) <- prepare
+      (holder, _, contract) <- deployWithFA2
       lastLevel <- getLevel
       timestamp <- getNow
       withSender holder do
@@ -48,16 +42,16 @@ test_propose = testGroup "propose entrypoint"
       checkCompares (piStartsAt proposal) (>=) timestamp
       checkCompares (piExpiresAt proposal) (>=) timestamp
   , testScenario "fails on not enough tokens" $ scenario do
-      (_, _, contract) <- prepare
+      (_, _, contract) <- deployWithFA2
       call contract (Call @"Propose") (uri, #choices :! choices)
         & expectCustomErrorNoArg #notEnoughTokens
   , testScenario "fails on empty choice list" $ scenario do
-      (holder, _, contract) <- prepare
+      (holder, _, contract) <- deployWithFA2
       withSender holder do
         call contract (Call @"Propose") (uri, #choices :! [])
           & expectCustomErrorNoArg #emptyChoices
   , testScenario "fails on duplicate proposal" $ scenario do
-      (holder, _, contract) <- prepare
+      (holder, _, contract) <- deployWithFA2
       withSender holder do
         call contract (Call @"Propose") (uri, #choices :! choices)
         call contract (Call @"Propose") (uri, #choices :! ["Other", "Choices"])
@@ -70,22 +64,6 @@ test_propose = testGroup "propose entrypoint"
   where
     uri = #proposal_uri :! URI "ipfs://proposal"
     choices = ["Zero", "One", "Two", "Three"]
-    prepare :: MonadCleveland caps m => m _
-    prepare = do
-      holder <- newAddress "holder"
-      let stor = FA2.mkStorage meta [((holder, FA2.TokenId 0), 100)] []
-          meta = FA2.mkTokenMetadata "g" "governance" "0"
-      fa2 <- originateSimple "FA2" stor (FA2.fa2Contract def)
-      (admin, contract) <- deployContractWithConf FA2Config
-        { fa2Addr = toAddress fa2
-        , fa2TokenId = TokenId 0
-        } id
-      pure (holder, admin, contract)
-
-data LabelEx
-  = forall tag.
-    (IsError (CustomError tag), MustHaveErrorArg tag MText)
-  => LabelEx (Label tag)
 
 test_vote :: IO TestTree
 test_vote = do
@@ -103,7 +81,7 @@ test_vote = do
             @@== #vote_choice :! idx
         where
           addProposal ts s@Storage{..} = s{
-              sProposals = [
+              sProposals = mkBigMap [
                 (#proposal_uri :! URI "ipfs://proposal", ProposalInfo
                   { piLevel = 0
                   , piChoices = ["Zero", "One", "Two", "Three"]
@@ -125,7 +103,6 @@ test_vote = do
   where
     minDelay = 1200 -- 20m
     maxDelay = 4800 -- 1h20m
-    tests :: [_]
     tests =
       [ ("works", 3, "ipfs://proposal", 1, minDelay, Nothing)
       , ("works with index 0", 0, "ipfs://proposal", 1, minDelay, Nothing)

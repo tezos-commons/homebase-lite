@@ -21,6 +21,13 @@ actually implemented, can instead be obtained by from [the latest
 release](https://github.com/tezos-commons/homebase-lite/releases/latest)
 or produced with [the `homebase-lite` tool](docs/tool.md#getting-the-contract-documentation).
 
+### [TZIP-16](https://tzip.tezosagora.org/proposal/tzip-16/) off-chain views
+
+The contract declares TZIP-16 metadata in its storage, which includes two off-chain views:
+
+- `currentConfig`: accepts no parameters and returns the [`Configuration`](https://github.com/tezos-commons/homebase-lite/blob/autodoc/master/documentation.md#types-Configuration) object containing the current configuration of the contract (as defined in the spec).
+- `proposalInfo`: accepts a proposal [`URI`](https://github.com/tezos-commons/homebase-lite/blob/autodoc/master/documentation.md#types-URI) (as `string`) and returns a [`ProposalInfo`](https://github.com/tezos-commons/homebase-lite/blob/autodoc/master/documentation.md#types-ProposalInfo) object for the proposal identified by the `URI`, or throws a [`NoSuchProposal`](https://github.com/tezos-commons/homebase-lite/blob/autodoc/master/documentation.md#errors-NoSuchProposal) error if no such proposal exists.
+
 ## The `homebase-lite` tool
 
 This repository includes a [`homebase-lite` utility tool](docs/tool.md), which
