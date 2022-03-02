@@ -1,6 +1,6 @@
 # Homebase Lite
 
-**Code revision:** [5decda6](https://github.com/tezos-commons/homebase-lite/commit/5decda630db1fea705ffb319aaf20659006a4e79) *(Thu Feb 17 22:00:33 2022 +0300)*
+**Code revision:** [de2f5df](https://github.com/tezos-commons/homebase-lite/commit/de2f5df319287243a73c15265834c3646351a20e) *(Wed Mar 2 18:48:57 2022 +0300)*
 
 
 
@@ -37,6 +37,7 @@ It aims to be a very lightweight complement to Homebase.
   - [BalanceRequestItem](#types-BalanceRequestItem)
   - [BalanceResponseItem](#types-BalanceResponseItem)
   - [BigMap](#types-BigMap)
+  - [ByteString](#types-ByteString)
   - [Configuration](#types-Configuration)
   - [FA2Config](#types-FA2Config)
   - [Integer](#types-Integer)
@@ -101,8 +102,9 @@ Contract storage.
   * ***FA2Config*** :[`FA2Config`](#types-FA2Config)
   * ***proposals*** :[`BigMap`](#types-BigMap) (***proposal_uri*** : [`URI`](#types-URI)) [`ProposalInfo`](#types-ProposalInfo)
   * ***votes*** :[`BigMap`](#types-BigMap) (***proposal_uri*** : [`URI`](#types-URI), ***voter_address*** : [`Address`](#types-Address)) (***vote_choice*** : [`Natural`](#types-Natural))
+  * ***metadata*** :[`BigMap`](#types-BigMap) [`Text`](#types-Text) [`ByteString`](#types-ByteString)
 
-**Final Michelson representation:** `pair (pair address address (big_map address unit)) (pair (pair (pair nat nat) nat nat) address nat) (big_map string (pair (pair nat timestamp) timestamp nat (list string))) (big_map (pair string address) nat)`
+**Final Michelson representation:** `pair (pair (pair address address) (big_map address unit) (pair nat nat) nat nat) (pair (pair address nat) (big_map string (pair (pair nat timestamp) timestamp nat (list string)))) (big_map (pair string address) nat) (big_map string bytes)`
 
 
 
@@ -460,6 +462,18 @@ BigMap primitive.
 
 
 
+<a name="types-ByteString"></a>
+
+---
+
+### `ByteString`
+
+Bytes primitive.
+
+**Final Michelson representation:** `bytes`
+
+
+
 <a name="types-Configuration"></a>
 
 ---
@@ -487,8 +501,8 @@ Options defining the behaviour and life-cycle of proposals.
 Parameters defining governance token contract and type
 
 **Structure:** 
-  * ***2Addr*** :[`Address`](#types-Address)
-  * ***2TokenId*** :[`TokenId`](#types-TokenId)
+  * ***fa2Addr*** :[`Address`](#types-Address)
+  * ***fa2TokenId*** :[`TokenId`](#types-TokenId)
 
 **Final Michelson representation:** `pair address nat`
 
