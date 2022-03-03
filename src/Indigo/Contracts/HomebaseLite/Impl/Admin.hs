@@ -27,8 +27,8 @@ checkSenderIsAdmin = defFunction do
 setAdmin :: HomebaseLiteEntrypoint Address
 setAdmin newAdmin = do
   description [itu|
-    Called by the current `admin` to transfer its role to someone else.
-    Takes in input the address of the new `admin` candidate.
+    Called by the current `admin` to transfer the role to someone else.
+    Takes the address of the new `admin` candidate as input.
     Note: for security reasons the transfer isn't complete until the new admin
     candidate calls `accept_admin`.
     If there is already a candidate, another call to this entrypoint will
@@ -42,7 +42,7 @@ setAdmin newAdmin = do
 acceptAdmin :: HomebaseLiteEntrypoint ()
 acceptAdmin _ = do
   description [itu|
-    Called by an `admin` candidate (see `set_admin`) to complete the transfer of
+    Called by the current `admin` candidate (see `set_admin`) to complete the transfer of
     the role. Takes no input.
     |]
   candidate <- getStorageField @Storage #sAdminCandidate
@@ -57,10 +57,10 @@ acceptAdmin _ = do
 addMaintainers :: HomebaseLiteEntrypoint [Address]
 addMaintainers newMaintainers = do
   description [itu|
-    Takes as input a list of addresses that will become `maintainer`s.
-    All the given addresses receive the `maintainer` role.
-    If a given address already has a `maintainer` role or is present in the list
-    more than once, this call is a no-op.
+    Takes a list of addresses that will become `maintainer`s as input.
+    All these addresses receive the `maintainer` role.
+    For addresses that already have the `maintainer` role and for duplicate addresses in
+    the input list, this call is a no-op.
     |]
   checkSenderIsAdmin
   modifyMaintainers (\l r -> l +: (r, ())) newMaintainers
@@ -68,9 +68,10 @@ addMaintainers newMaintainers = do
 removeMaintainers :: HomebaseLiteEntrypoint [Address]
 removeMaintainers maintainersToRemove = do
   description [itu|
-    Takes as input a list of addresses that will lose the `maintainer` role.
-    All the given addresses lose the `maintainer` role.
-    If a given addresses is not a `maintainer` this call is a no-op.
+    Takes a list of addresses that will lose the `maintainer` role as input.
+    All these addresses lose the `maintainer` role.
+    For addresses that don't have the `maintainer` role and for duplicate addresses in
+    the input list, this call is a no-op.
     |]
   checkSenderIsAdmin
   modifyMaintainers (-:) maintainersToRemove
@@ -89,8 +90,9 @@ modifyMaintainers modf list = defFunction do
 configure :: HomebaseLiteEntrypoint Configuration
 configure newConfig = do
   description [itu|
-    Takes as input new values for all the **configuration options**, these new
-    values will replace the current ones and will affect future proposals.
+    Takes new values for all the **configuration options** as input.
+    These new values will replace the current ones and will affect future proposals.
+    The sender must have a `maintainer` role.
     |]
   checkSenderIsMaintainer
   setStorageField @Storage #sConfiguration newConfig

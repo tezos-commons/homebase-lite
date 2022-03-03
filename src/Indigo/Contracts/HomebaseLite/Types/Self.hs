@@ -103,7 +103,7 @@ data FA2Config = FA2Config
   deriving anyclass (IsoValue, HasAnnotation)
 
 instance TypeHasDoc FA2Config where
-  typeDocMdDescription = "Parameters defining governance token contract and type"
+  typeDocMdDescription = "Parameters defining the governance token contract and type"
   typeDocHaskellRep = homomorphicTypeDocHaskellRep
 
 data MetadataConfig = MetadataConfig
