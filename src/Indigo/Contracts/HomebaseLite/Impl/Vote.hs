@@ -21,8 +21,9 @@ propose :: HasSideEffects => HomebaseLiteEntrypoint ("proposal_uri" :! URI, "cho
 propose par = do
   description [itu|
     Called by a `participant` to submit a new proposal.
-    Takes as input an IPFS URI and a list of strings for the `n`  available choices.
-    A new proposal for the given IPFS will be initialized (with a `submitted` status).
+    Takes an IPFS URI and a list of strings for the available choices as input.
+    A new proposal for the given IPFS URI will be initialized using the current
+    **configuration options** (see `configure`).
     |]
   choices <- new$ par #! #choices
   when (size choices == 0 nat) do
@@ -57,8 +58,8 @@ verifyMinBalance :: HomebaseLiteEntrypoint [BalanceResponseItem]
 verifyMinBalance bris = do
   description [itu|
     Callback for the `balance_of` CPS view of FA2,
-    used to check the balance of a `participant` that used the `propose` entrypoint.
-    Takes as input the list of tuples containing the `owner` , `token_id` and `balance` .
+    used to check the governance token's balance of a `participant` that used the
+    `propose` entrypoint.
     |]
   forEach bris \bri -> do
     when (bri #! #briBalance < storage #! #sConfiguration #! #cMinimumBalance) do
@@ -66,16 +67,16 @@ verifyMinBalance bris = do
 
 [errorDoc| "notEnoughTokens" exception "Some of the `balance`s in the list are
 less than `minimum_balance`"|]
-[errorDoc| "duplicateProposal" exception "Fail if a proposal for the same IPFS
-URI was already submitted before"|]
-[errorDoc| "emptyChoices" bad-argument "The number of choices `n` is `0`."|]
-[errorDoc| "noFA2Contract" contract-internal "Configured FA2 contract not found."|]
+[errorDoc| "duplicateProposal" exception "A proposal for the same IPFS URI already exists"|]
+[errorDoc| "emptyChoices" bad-argument "The proposal has no choices, i.e. the provided list of
+available choices is empty"|]
+[errorDoc| "noFA2Contract" contract-internal "Configured FA2 contract not found"|]
 
 vote :: HomebaseLiteEntrypoint ("proposal_uri" :! URI, "choice_index" :! Natural)
 vote par = do
   description [itu|
     Called by a `participant` to cast a vote on a proposal.
-    Takes as input the proposal's IPFS URI and the choice made `x` .
+    Takes the proposal's IPFS URI and a choice index (zero-based).
     |]
   uri <- new$ fst par
   ifNone ((storage #! #sProposals) #: uri)
@@ -94,11 +95,8 @@ vote par = do
           failCustomNoArg @() #alreadyVoted
         pure $ votes +: (key, name #vote_choice choice)
 
-[errorDoc| "noSuchProposal" exception "There is no proposal for the given IPFS URI"|]
-[errorDoc| "noSuchChoice" exception "There is no choice `x` available for the given proposal,
-aka if `x > n`"|]
-[errorDoc| "alreadyVoted" exception "The sender already voted on this proposal before"|]
-[errorDoc| "proposalNotYetActive" exception "Less than `vote_delay` has passed since the proposal
-submission, aka the proposal is still in a `sumbitted` status"|]
-[errorDoc| "proposalExpired" exception "More than `expire_time` has passed since the proposal
-submission, aka the proposal has been completed (either as `expired` or `passed`)"|]
+[errorDoc| "noSuchProposal" exception "No proposal for the given IPFS URI"|]
+[errorDoc| "noSuchChoice" exception "No choice with the given index available for the proposal"|]
+[errorDoc| "alreadyVoted" exception "The sender has already voted on this proposal"|]
+[errorDoc| "proposalNotYetActive" exception "The voting period for the proposal hasn't started yet"|]
+[errorDoc| "proposalExpired" exception "The voting period for the proposal has ended"|]
