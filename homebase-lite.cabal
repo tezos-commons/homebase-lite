@@ -5,12 +5,12 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           homebase-lite
-version:        0
+version:        0.1.0
 description:    Tezos smart contract for a decentralized voting system, based on “snapshots” of the blockchain
 homepage:       https://github.com/tezos-commons/homebase-lite#readme
 bug-reports:    https://github.com/tezos-commons/homebase-lite/issues
 author:         Serokell <hi@serokell.io>
-maintainer:     Maintainers of this package <we-maintain@this.package>
+maintainer:     Serokell <hi@serokell.io>
 copyright:      2022 Tezos Commons
 license:        MIT
 license-file:   LICENSE
