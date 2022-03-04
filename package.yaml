@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-MIT-TC
 
 name: homebase-lite
-version: 0
+version: 0.1.0
 author: Serokell <hi@serokell.io>
 github: tezos-commons/homebase-lite
 
@@ -13,7 +13,7 @@ description:
 copyright: 2022 Tezos Commons
 license-file: LICENSE
 
-maintainer: Maintainers of this package <we-maintain@this.package>
+maintainer: Serokell <hi@serokell.io>
 
 # We enable all extensions that we consider harmless by default.
 default-extensions:
