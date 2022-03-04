@@ -1,6 +1,6 @@
 # Homebase Lite
 
-**Code revision:** [de2f5df](https://github.com/tezos-commons/homebase-lite/commit/de2f5df319287243a73c15265834c3646351a20e) *(Wed Mar 2 18:48:57 2022 +0300)*
+**Code revision:** [6d4df7a](https://github.com/tezos-commons/homebase-lite/commit/6d4df7a8d88ad0e7b875f3ab8827f6ed3ee70676) *(Fri Mar 4 03:20:55 2022 +0300)*
 
 
 
@@ -118,8 +118,8 @@ Contract storage.
 
 ### `set_admin`
 
-Called by the current `admin` to transfer its role to someone else.
-Takes in input the address of the new `admin` candidate.
+Called by the current `admin` to transfer the role to someone else.
+Takes the address of the new `admin` candidate as input.
 Note: for security reasons the transfer isn't complete until the new admin
 candidate calls `accept_admin`.
 If there is already a candidate, another call to this entrypoint will
@@ -153,7 +153,7 @@ invalidate the current candidate.
 
 ### `accept_admin`
 
-Called by an `admin` candidate (see `set_admin`) to complete the transfer of
+Called by the current `admin` candidate (see `set_admin`) to complete the transfer of
 the role. Takes no input.
 
 **Argument:** 
@@ -182,10 +182,10 @@ the role. Takes no input.
 
 ### `add_maintainers`
 
-Takes as input a list of addresses that will become `maintainer`s.
-All the given addresses receive the `maintainer` role.
-If a given address already has a `maintainer` role or is present in the list
-more than once, this call is a no-op.
+Takes a list of addresses that will become `maintainer`s as input.
+All these addresses receive the `maintainer` role.
+For addresses that already have the `maintainer` role and for duplicate addresses in
+the input list, this call is a no-op.
 
 **Argument:** 
   + **In Haskell:** [`List`](#types-List) [`Address`](#types-Address)
@@ -213,9 +213,10 @@ more than once, this call is a no-op.
 
 ### `remove_maintainers`
 
-Takes as input a list of addresses that will lose the `maintainer` role.
-All the given addresses lose the `maintainer` role.
-If a given addresses is not a `maintainer` this call is a no-op.
+Takes a list of addresses that will lose the `maintainer` role as input.
+All these addresses lose the `maintainer` role.
+For addresses that don't have the `maintainer` role and for duplicate addresses in
+the input list, this call is a no-op.
 
 **Argument:** 
   + **In Haskell:** [`List`](#types-List) [`Address`](#types-Address)
@@ -243,8 +244,9 @@ If a given addresses is not a `maintainer` this call is a no-op.
 
 ### `configure`
 
-Takes as input new values for all the **configuration options**, these new
-values will replace the current ones and will affect future proposals.
+Takes new values for all the **configuration options** as input.
+These new values will replace the current ones and will affect future proposals.
+The sender must have a `maintainer` role.
 
 **Argument:** 
   + **In Haskell:** [`Configuration`](#types-Configuration)
@@ -273,8 +275,9 @@ values will replace the current ones and will affect future proposals.
 ### `propose`
 
 Called by a `participant` to submit a new proposal.
-Takes as input an IPFS URI and a list of strings for the `n`  available choices.
-A new proposal for the given IPFS will be initialized (with a `submitted` status).
+Takes an IPFS URI and a list of strings for the available choices as input.
+A new proposal for the given IPFS URI will be initialized using the current
+**configuration options** (see `configure`).
 
 **Argument:** 
   + **In Haskell:** (***proposal_uri*** : [`URI`](#types-URI), ***choices*** : [`List`](#types-List) [`Text`](#types-Text))
@@ -292,9 +295,9 @@ A new proposal for the given IPFS will be initialized (with a `submitted` status
 
 
 **Possible errors:**
-* [`EmptyChoices`](#errors-EmptyChoices) — The number of choices `n` is `0`.
+* [`EmptyChoices`](#errors-EmptyChoices) — The proposal has no choices, i.e.
 
-* [`DuplicateProposal`](#errors-DuplicateProposal) — Fail if a proposal for the same IPFS URI was already submitted before
+* [`DuplicateProposal`](#errors-DuplicateProposal) — A proposal for the same IPFS URI already exists
 
 
 
@@ -305,7 +308,7 @@ A new proposal for the given IPFS will be initialized (with a `submitted` status
 ### `vote`
 
 Called by a `participant` to cast a vote on a proposal.
-Takes as input the proposal's IPFS URI and the choice made `x` .
+Takes the proposal's IPFS URI and a choice index (zero-based).
 
 **Argument:** 
   + **In Haskell:** (***proposal_uri*** : [`URI`](#types-URI), ***choice_index*** : [`Natural`](#types-Natural))
@@ -323,15 +326,15 @@ Takes as input the proposal's IPFS URI and the choice made `x` .
 
 
 **Possible errors:**
-* [`NoSuchProposal`](#errors-NoSuchProposal) — There is no proposal for the given IPFS URI
+* [`NoSuchProposal`](#errors-NoSuchProposal) — No proposal for the given IPFS URI
 
-* [`NoSuchChoice`](#errors-NoSuchChoice) — There is no choice `x` available for the given proposal, aka if `x > n`
+* [`NoSuchChoice`](#errors-NoSuchChoice) — No choice with the given index available for the proposal
 
-* [`ProposalNotYetActive`](#errors-ProposalNotYetActive) — Less than `vote_delay` has passed since the proposal submission, aka the proposal is still in a `sumbitted` status
+* [`ProposalNotYetActive`](#errors-ProposalNotYetActive) — The voting period for the proposal hasn't started yet
 
-* [`ProposalExpired`](#errors-ProposalExpired) — More than `expire_time` has passed since the proposal submission, aka the proposal has been completed (either as `expired` or `passed`)
+* [`ProposalExpired`](#errors-ProposalExpired) — The voting period for the proposal has ended
 
-* [`AlreadyVoted`](#errors-AlreadyVoted) — The sender already voted on this proposal before
+* [`AlreadyVoted`](#errors-AlreadyVoted) — The sender has already voted on this proposal
 
 
 
@@ -342,8 +345,8 @@ Takes as input the proposal's IPFS URI and the choice made `x` .
 ### `verify_min_balance`
 
 Callback for the `balance_of` CPS view of FA2,
-used to check the balance of a `participant` that used the `propose` entrypoint.
-Takes as input the list of tuples containing the `owner` , `token_id` and `balance` .
+used to check the governance token's balance of a `participant` that used the
+`propose` entrypoint.
 
 **Argument:** 
   + **In Haskell:** [`List`](#types-List) [`BalanceResponseItem`](#types-BalanceResponseItem)
@@ -498,7 +501,7 @@ Options defining the behaviour and life-cycle of proposals.
 
 ### `FA2Config`
 
-Parameters defining governance token contract and type
+Parameters defining the governance token contract and type
 
 **Structure:** 
   * ***fa2Addr*** :[`Address`](#types-Address)
@@ -697,7 +700,7 @@ We distinquish several error classes:
 
 **Class:** Action exception
 
-**Fires if:** The sender already voted on this proposal before
+**Fires if:** The sender has already voted on this proposal
 
 **Representation:** `AlreadyVoted`
 
@@ -709,7 +712,7 @@ We distinquish several error classes:
 
 **Class:** Action exception
 
-**Fires if:** Fail if a proposal for the same IPFS URI was already submitted before
+**Fires if:** A proposal for the same IPFS URI already exists
 
 **Representation:** `DuplicateProposal`
 
@@ -721,7 +724,7 @@ We distinquish several error classes:
 
 **Class:** Bad argument
 
-**Fires if:** The number of choices `n` is `0`.
+**Fires if:** The proposal has no choices, i.e. the provided list of available choices is empty
 
 **Representation:** `EmptyChoices`
 
@@ -733,7 +736,7 @@ We distinquish several error classes:
 
 **Class:** Internal
 
-**Fires if:** Configured FA2 contract not found.
+**Fires if:** Configured FA2 contract not found
 
 **Representation:** `NoFA2Contract`
 
@@ -745,7 +748,7 @@ We distinquish several error classes:
 
 **Class:** Action exception
 
-**Fires if:** There is no choice `x` available for the given proposal, aka if `x > n`
+**Fires if:** No choice with the given index available for the proposal
 
 **Representation:** `NoSuchChoice`
 
@@ -757,7 +760,7 @@ We distinquish several error classes:
 
 **Class:** Action exception
 
-**Fires if:** There is no proposal for the given IPFS URI
+**Fires if:** No proposal for the given IPFS URI
 
 **Representation:** `NoSuchProposal`
 
@@ -781,7 +784,7 @@ We distinquish several error classes:
 
 **Class:** Action exception
 
-**Fires if:** More than `expire_time` has passed since the proposal submission, aka the proposal has been completed (either as `expired` or `passed`)
+**Fires if:** The voting period for the proposal has ended
 
 **Representation:** `ProposalExpired`
 
@@ -793,7 +796,7 @@ We distinquish several error classes:
 
 **Class:** Action exception
 
-**Fires if:** Less than `vote_delay` has passed since the proposal submission, aka the proposal is still in a `sumbitted` status
+**Fires if:** The voting period for the proposal hasn't started yet
 
 **Representation:** `ProposalNotYetActive`
 
