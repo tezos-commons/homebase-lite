@@ -29,7 +29,7 @@ data Parameter
   deriving stock (Generic, Show)
   deriving anyclass (IsoValue)
 
-[entrypointDoc| Parameter delegate |]
+[entrypointDoc| Parameter recursive |]
 
 data AdminParameter
   = Set_admin Address
