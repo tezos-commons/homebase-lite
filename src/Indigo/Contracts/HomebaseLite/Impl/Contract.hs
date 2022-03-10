@@ -17,6 +17,7 @@ import Indigo.Contracts.HomebaseLite.Impl.Admin
 import Indigo.Contracts.HomebaseLite.Impl.Vote
 import Indigo.Contracts.HomebaseLite.Optimizer
 import Indigo.Contracts.HomebaseLite.Types
+import Indigo.Contracts.HomebaseLite.Impl.Utils (HomebaseLiteEntrypoint)
 
 indigoContract :: IndigoContract Parameter Storage
 indigoContract param = defContract $ docGroup "Homebase Lite" do
@@ -29,16 +30,28 @@ indigoContract param = defContract $ docGroup "Homebase Lite" do
 
     It aims to be a very lightweight complement to Homebase.|]
   doc $ dStorage @Storage
-  entryCaseSimple param
-    ( #cSet_admin #= setAdmin
-    , #cAccept_admin #= acceptAdmin
-    , #cAdd_maintainers #= addMaintainers
-    , #cRemove_maintainers #= removeMaintainers
-    , #cConfigure #= configure
-    , #cPropose #= propose
-    , #cVote #= vote
-    , #cVerify_min_balance #= verifyMinBalance
+  entryCase (Proxy @PlainEntrypointsKind) param
+    ( #cAdmin #= adminEps
+    , #cVoting #= votingEps
     )
+
+
+adminEps :: HomebaseLiteEntrypoint AdminParameter
+adminEps param = entryCaseSimple param
+  ( #cSet_admin #= setAdmin
+  , #cAccept_admin #= acceptAdmin
+  , #cAdd_maintainers #= addMaintainers
+  , #cRemove_maintainers #= removeMaintainers
+  , #cConfigure #= configure
+  )
+
+votingEps :: HasSideEffects => HomebaseLiteEntrypoint VotingParameter
+votingEps param = entryCaseSimple param
+  ( #cPropose #= propose
+  , #cVote #= vote
+  , #cVerify_min_balance #= verifyMinBalance
+  )
+
 
 lorentzContract :: L.Contract Parameter Storage ()
 lorentzContract = defaultContract $ optimize $ compileIndigoContract indigoContract

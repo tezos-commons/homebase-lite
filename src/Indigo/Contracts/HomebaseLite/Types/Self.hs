@@ -3,6 +3,8 @@
 
 module Indigo.Contracts.HomebaseLite.Types.Self
   ( Parameter(..)
+  , AdminParameter(..)
+  , VotingParameter(..)
   , Storage(..)
   , Configuration(..)
   , URI(..)
@@ -22,18 +24,34 @@ import Lorentz.Contracts.Spec.FA2Interface (BalanceResponseItem, TokenId)
 import Lorentz.Contracts.Spec.TZIP16Interface (MetadataMap)
 
 data Parameter
+  = Admin AdminParameter
+  | Voting VotingParameter
+  deriving stock (Generic, Show)
+  deriving anyclass (IsoValue)
+
+[entrypointDoc| Parameter delegate |]
+
+data AdminParameter
   = Set_admin Address
   | Accept_admin ()
   | Add_maintainers [Address]
   | Remove_maintainers [Address]
   | Configure Configuration
-  | Propose ("proposal_uri" :! URI, "choices" :! [MText])
+  deriving stock (Generic, Show)
+  deriving anyclass (IsoValue)
+
+[entrypointDoc| AdminParameter plain |]
+[typeDoc| AdminParameter "AdminParameter"|]
+
+data VotingParameter
+  = Propose ("proposal_uri" :! URI, "choices" :! [MText])
   | Vote ("proposal_uri" :! URI, "choice_index" :! Natural)
   | Verify_min_balance [BalanceResponseItem]
   deriving stock (Generic, Show)
   deriving anyclass (IsoValue)
 
-[entrypointDoc| Parameter plain |]
+[entrypointDoc| VotingParameter plain |]
+[typeDoc| VotingParameter "VotingParameter"|]
 
 newtype Seconds = Seconds {unSeconds :: Natural}
   deriving stock (Generic, Show)
