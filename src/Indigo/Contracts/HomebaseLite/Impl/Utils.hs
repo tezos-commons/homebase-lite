@@ -14,7 +14,7 @@ import Indigo
 import Data.Text (stripPrefix, stripSuffix)
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
-import qualified Language.Haskell.TH.Syntax as TH (lift)
+import Language.Haskell.TH.Syntax qualified as TH (lift)
 
 import Indigo.Contracts.HomebaseLite.Types
 

@@ -1,6 +1,8 @@
-# SPDX-FileCopyrightText: 2022 Serokell <https://serokell.io>
+# SPDX-FileCopyrightText: 2020 Serokell <https://serokell.io>
 #
-# SPDX-License-Identifier: CC0-1.0
+# SPDX-License-Identifier: Unlicense
+
+# stylish-haskell config used by developers to format morley code
 
 steps:
   - simple_align:
@@ -17,6 +19,7 @@ steps:
       list_padding: 2
       separate_lists: false
       space_surround: false
+      post_qualify: true
   - trailing_whitespace: {}
 columns: 100
 newline: native
@@ -39,6 +42,7 @@ language_extensions:
   - FunctionalDependencies
   - GADTs
   - GeneralizedNewtypeDeriving
+  - ImportQualifiedPost
   - LambdaCase
   - MultiParamTypeClasses
   - MultiWayIf

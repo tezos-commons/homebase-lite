@@ -9,7 +9,7 @@ module Indigo.Contracts.HomebaseLite.Impl.Contract
   ) where
 
 import Indigo hiding ((*))
-import qualified Lorentz as L
+import Lorentz qualified as L
 
 import Morley.Util.Interpolate (itu)
 

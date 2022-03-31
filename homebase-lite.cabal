@@ -59,6 +59,7 @@ library
       FlexibleInstances
       GADTs
       GeneralizedNewtypeDeriving
+      ImportQualifiedPost
       LambdaCase
       MultiParamTypeClasses
       MultiWayIf
@@ -129,6 +130,7 @@ executable homebase-lite
       FlexibleInstances
       GADTs
       GeneralizedNewtypeDeriving
+      ImportQualifiedPost
       LambdaCase
       MultiParamTypeClasses
       MultiWayIf
@@ -209,6 +211,7 @@ test-suite homebase-lite-test
       FlexibleInstances
       GADTs
       GeneralizedNewtypeDeriving
+      ImportQualifiedPost
       LambdaCase
       MultiParamTypeClasses
       MultiWayIf
