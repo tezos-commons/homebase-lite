@@ -19,8 +19,8 @@ import Data.Default (def)
 import Fmt (Buildable(..))
 import GHC.TypeLits (symbolVal)
 
-import qualified Indigo.Contracts.FA2Sample as FA2
-import qualified Lorentz.Contracts.Spec.FA2Interface as FA2
+import Indigo.Contracts.FA2Sample qualified as FA2
+import Lorentz.Contracts.Spec.FA2Interface qualified as FA2
 import Morley.Tezos.Address
 import Morley.Util.Label
 import Morley.Util.Named (pattern (:!))
@@ -28,9 +28,6 @@ import Test.Cleveland
 
 import Indigo.Contracts.HomebaseLite
 import Indigo.Contracts.HomebaseLite.Types
-
-instance Buildable () where
-  build () = "()"
 
 instance Buildable URI where
   build (URI x) = "uri:" <> build x
@@ -76,14 +73,7 @@ defaultStorage admin fa2conf = initialStorage
 
 deriving stock instance Eq Seconds
 deriving stock instance Eq Configuration
-
-instance Buildable Configuration where
-  build = show
-
 deriving stock instance Eq ProposalInfo
-
-instance Buildable ProposalInfo where
-  build = show
 
 deployWithFA2 :: MonadCleveland caps m => m (Address, Address, ContractHandle Parameter Storage ())
 deployWithFA2 = do

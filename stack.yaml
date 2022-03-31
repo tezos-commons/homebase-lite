@@ -9,16 +9,22 @@ packages:
 - .
 
 extra-deps:
-- morley-prelude-0.5.0
-- morley-1.16.2
-- lorentz-0.13.2
-- morley-client-0.1.0
-- cleveland-0.1.0
+- git:
+    https://gitlab.com/morley-framework/morley.git
+    # ^ CI cannot use ssh, so we use http clone here
+  commit:
+    146da727ff486c46b0ec9f392d955f07d797848e # master
+  subdirs:
+    - code/cleveland
+    - code/lorentz
+    - code/morley
+    - code/morley-client
+    - code/morley-prelude
 
 - git:
     https://gitlab.com/morley-framework/indigo.git
   commit:
-    73487acf6e682115091fec5e148b936f0fa958c5 # master
+    e879e5f282afb8d25d72d8ba132f22d3d9e628a1 # master
   subdirs:
     - .
 
@@ -26,7 +32,7 @@ extra-deps:
     https://gitlab.com/morley-framework/morley-ledgers.git
     # ^ CI cannot use ssh, so we use http clone here
   commit:
-    3a7d14cff8ea011e79ceec0bcdc1668bf987f7e9 # master
+    b39a971f42bb113a5b3e23c9145253e27ad6e049 # master
   subdirs:
     - code/morley-ledgers
     - code/morley-ledgers-test
@@ -35,7 +41,7 @@ extra-deps:
     https://gitlab.com/morley-framework/morley-metadata.git
     # ^ CI cannot use ssh, so we use http clone here
   commit:
-    5a54cc98931327f6f110e3a34f6f23176c064396 # master
+    81b947ca1d74f3487a5b5c8e2141c37bf374f747 # master
   subdirs:
     - code/morley-metadata
     - code/morley-metadata-test
@@ -58,6 +64,7 @@ extra-deps:
 - crypto-sodium-0.0.5.0
 - NaCl-0.0.5.0
 - libsodium-1.0.18.2
+- OddWord-1.0.2.0
 
 # Required by indigo
 - summoner-2.0.1.1

@@ -12,10 +12,11 @@ import Data.Type.Equality ((:~:)(Refl))
 import Unsafe.Coerce (unsafeCoerce)
 
 import Morley.Michelson.Optimizer (OptimizerConf, Rule(..), ocRuleset, orSimpleRule)
-import Morley.Michelson.Typed (Instr(..), T(TBool), Value, pattern (:#))
-import Morley.Util.Peano (Decrement, Drop, IsLongerOrSameLength, IsLongerThan, Nat(..), Take)
+import Morley.Michelson.Typed (Dict(Dict), Instr(..), T(TBool), Value, pattern (:#))
+import Morley.Util.Peano
+  (Decrement, Drop, IsLongerOrSameLength, IsLongerThan, Take, pattern S, pattern Z)
 import Morley.Util.PeanoNatural (PeanoNatural(..), fromPeanoNatural)
-import Morley.Util.Type (type (++))
+import Morley.Util.Type (KnownList, type (++))
 
 optimize :: inp :-> out -> inp :-> out
 optimize = optimizeLorentzWithConf optimizerConf
@@ -231,6 +232,9 @@ dupDipDrop = Rule \case
     | Refl :: out :~: (a ': Take n inp ++ Drop ('S n) inp) <- unsafeCoerce Refl
     , Refl :: IsLongerThan inp n :~: 'True <- unsafeCoerce Refl
     , Just Refl <- eqPeanoNat x y
+    , Dict :: Dict (KnownList inp) <- unsafeCoerce (Dict :: Dict (KnownList '[]))
+    -- Pulling KnownList from the aether here is "safe" because the dict is only
+    -- used in a compile-time proof.
     -> Just $ DIG x :# xs
   _ -> Nothing
 

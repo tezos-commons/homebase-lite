@@ -25,8 +25,8 @@ test_currentConfig :: TestTree
 test_currentConfig =
   testScenarioOnEmulator "currentConfig view works" $ scenarioEmulated do
     (admin, contract) <- deployContract
-    callOffChainView contract "currentConfig" NoParam
-      @@== sConfiguration (defaultStorage admin Nothing)
+    Showing <$> callOffChainView contract "currentConfig" NoParam
+      @@== Showing (sConfiguration (defaultStorage admin Nothing))
 
 test_proposalInfo :: TestTree
 test_proposalInfo =
@@ -39,8 +39,8 @@ test_proposalInfo =
     storage <- getStorage contract
     let proposals = sProposalsRPC storage
     proposal <- getBigMapValue proposals uri
-    callOffChainView contract "proposalInfo" (ViewParam uri)
-      @@== proposal
+    Showing <$> callOffChainView contract "proposalInfo" (ViewParam uri)
+      @@== Showing proposal
     res <- attempt $
       callOffChainView @ProposalInfo
         contract "proposalInfo" (ViewParam $ #proposal_uri :! URI "ipfs://nonexistent")

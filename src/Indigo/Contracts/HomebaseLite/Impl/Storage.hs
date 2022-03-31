@@ -10,7 +10,7 @@ module Indigo.Contracts.HomebaseLite.Impl.Storage
 
 import Indigo hiding ((*))
 
-import Morley.Util.Named (pattern N)
+import Morley.Util.Named (arg)
 
 import Indigo.Contracts.HomebaseLite.Impl.Metadata
 import Indigo.Contracts.HomebaseLite.Types
@@ -24,8 +24,14 @@ initialStorage
   -> ("fa2config" :! FA2Config)
   -> ("metadataConfig" :! MetadataConfig)
   -> Storage
-initialStorage (N admin) (N expireTime) (N voteDelay) (N quorumThreshold) (N minimumBalance)
-  (N fa2config) (N contractMetadataConfig)
+initialStorage
+  (arg #admin -> admin)
+  (arg #expireTime -> expireTime)
+  (arg #voteDelay -> voteDelay)
+  (arg #quorumThreshold -> quorumThreshold)
+  (arg #minimumBalance -> minimumBalance)
+  (arg #fa2config -> fa2config)
+  (arg #metadataConfig -> contractMetadataConfig)
   = Storage
     { sAdmin = admin
     , sAdminCandidate = admin
