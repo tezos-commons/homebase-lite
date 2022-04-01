@@ -1,6 +1,8 @@
 -- SPDX-FileCopyrightText: 2022 Tezos Commons
 -- SPDX-License-Identifier: LicenseRef-MIT-TC
 
+{-# OPTIONS_GHC -Wno-orphans #-}
+
 module Test.Indigo.Contracts.HomebaseLite.AsRPC
   ( ConfigurationRPC(..)
   , StorageRPC(..)
@@ -8,8 +10,6 @@ module Test.Indigo.Contracts.HomebaseLite.AsRPC
   , FA2ConfigRPC(..)
   , toRPC
   ) where
-
-import Fmt (Buildable(..))
 
 import Test.Cleveland
 
@@ -26,9 +26,6 @@ deriving stock instance Show SecondsRPC
 deriving stock instance Eq SecondsRPC
 deriving stock instance Show ConfigurationRPC
 deriving stock instance Eq ConfigurationRPC
-
-instance Buildable ConfigurationRPC where
-  build = show
 
 toRPC :: Configuration -> ConfigurationRPC
 toRPC (Configuration (Seconds a) (Seconds b) c d) =

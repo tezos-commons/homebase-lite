@@ -7,7 +7,7 @@ module Test.Indigo.Contracts.HomebaseLite.Metadata.Data
   ( test_metadata_simple
   ) where
 
-import Fmt (Buildable(..), pretty)
+import Fmt (pretty)
 import Test.Tasty (TestTree)
 
 import Lorentz (errorTagToMText, toVal)
@@ -25,7 +25,7 @@ test_metadata_simple =
     meta <- getMetadata contract
     evalRight pretty (getName meta) @@== Just "Homebase-Lite"
     evalRight pretty (getDescription meta) @@== Just "Offchain, decentralized voting system."
-    evalRight pretty (getLicense meta) @@== Just (License "MIT" Nothing)
+    Showing <$> evalRight pretty (getLicense meta) @@== Showing (Just (License "MIT" Nothing))
     evalRight pretty (getHomepage meta) @@== Just "https://github.com/tezos-commons/homebase-lite"
     declaredErrors <- evalRight pretty $ getErrors meta
     for_ knownErrors \err ->
@@ -51,6 +51,3 @@ test_metadata_simple =
     errHasKey (LabelEx k) (EStatic StaticError{..}) =
       seError == toExpression (toVal (errorTagToMText k))
     errHasKey _ _ = False
-
-instance Buildable License where
-  build = show

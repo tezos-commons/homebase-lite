@@ -10,24 +10,24 @@ module Indigo.Contracts.HomebaseLite.Impl.Metadata
   ) where
 
 import Indigo hiding (cast, description, name, (<>))
-import qualified Lorentz as L
+import Lorentz qualified as L
 
 import Data.Aeson (encode)
-import qualified Data.ByteString.Lazy as BS
+import Data.ByteString.Lazy qualified as BS
 import Data.Text.Internal.Builder (toLazyText)
 import Data.Typeable (cast)
 
-import qualified Lorentz.Contracts.Spec.TZIP16Interface as TZ16
+import Lorentz.Contracts.Spec.TZIP16Interface qualified as TZ16
 import Morley.Metadata (compileViewCodeTH, mkSimpleMichelsonStorageView)
 import Morley.Micheline (toExpression)
-import Morley.Michelson.Text (unsafeMkMText)
+import Morley.Michelson.Text (mkMText)
 import Morley.Util.Markdown (HeaderLevel(..))
 
 import Indigo.Contracts.HomebaseLite.Impl.Contract
 import Indigo.Contracts.HomebaseLite.Impl.Metadata.Views
 import Indigo.Contracts.HomebaseLite.Types
 
-metadataBigMap :: MetadataConfig -> TZ16.MetadataMap BigMap
+metadataBigMap :: MetadataConfig -> TZ16.MetadataMap
 metadataBigMap conf = TZ16.metadataURI (TZ16.tezosStorageUri TZ16.selfHost metadataKey)
   <> [(metadataKey, BS.toStrict $ encode $ metadataJSON conf)]
   where metadataKey = [mt|metadata|]
@@ -55,9 +55,9 @@ collectContractErrors =
   in catMaybes $ toList (cdDefinitionsSet d) <&> \(SomeDocDefinitionItem item) ->
     (cast item :: Maybe DError) <&> \(DError (Proxy :: Proxy e)) ->
       TZ16.EStatic TZ16.StaticError
-        { seError = toExpression . toVal . unsafeMkMText $ errorDocName @e
+        { seError = toExpression . toVal . unsafe . mkMText $ errorDocName @e
         , seExpansion = toExpression
-          . toVal . unsafeMkMText . toText . toLazyText $ errorDocMdCause @e
+          . toVal . unsafe . mkMText . toText . toLazyText $ errorDocMdCause @e
         , seLanguages = ["en-US"]
         }
 

@@ -15,7 +15,7 @@ module Indigo.Contracts.HomebaseLite.Types.Self
 import Indigo hiding ((<>))
 
 import Data.Char (isLower, isUpper, toLower)
-import qualified Data.Text as T
+import Data.Text qualified as T
 
 import Lorentz.Annotation (AnnOptions(..), annOptions)
 import Lorentz.Contracts.Spec.FA2Interface (BalanceResponseItem, TokenId)
@@ -85,7 +85,7 @@ data Storage = Storage
   , sProposals :: BigMap ("proposal_uri" :! URI) ProposalInfo
   , sVotes :: BigMap ("proposal_uri" :! URI, "voter_address" :! Address)
       ("vote_choice" :! Natural)
-  , sMetadata :: MetadataMap BigMap
+  , sMetadata :: MetadataMap
   }
   deriving stock (Generic, Show)
   deriving anyclass (IsoValue)
