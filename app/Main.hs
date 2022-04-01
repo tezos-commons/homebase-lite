@@ -10,15 +10,15 @@ import Lorentz
   toMichelsonContract, toVal, zeroMutez)
 
 import Data.Aeson.Encode.Pretty (encodePretty, encodePrettyToTextBuilder)
-import qualified Data.ByteString.Lazy.Char8 as BS (putStrLn)
+import Data.ByteString.Lazy.Char8 qualified as BS (putStrLn)
 import Data.Char (isUpper, toLower)
 import Data.Constraint ((\\))
 import Data.Text.Lazy.Builder (toLazyText)
-import qualified Data.Text.Lazy.IO.Utf8 as Utf8 (writeFile)
+import Data.Text.Lazy.IO.Utf8 qualified as Utf8 (writeFile)
 import Fmt (pretty)
 import GHC.TypeLits (symbolVal)
 import Main.Utf8 (withUtf8)
-import qualified Options.Applicative as Opt
+import Options.Applicative qualified as Opt
 import Options.Applicative.Help.Pretty (Doc, linebreak)
 import System.Environment (withProgName)
 
@@ -30,7 +30,7 @@ import Morley.Micheline (Expression, toExpression)
 import Morley.Michelson.Analyzer (analyze)
 import Morley.Michelson.Printer (printTypedContract)
 import Morley.Michelson.Typed (cCode)
-import Morley.Util.Named (Name(..), pattern (:!), type (:!))
+import Morley.Util.Named (Name, pattern (:!), type (:!))
 
 import Indigo.Contracts.HomebaseLite
 import Indigo.Contracts.HomebaseLite.Impl.Metadata (gitRev, versionString)
@@ -86,7 +86,7 @@ storageParser = initialStorage
     adminParser = (#admin :!) <$> addressOption Nothing
       (#name :! "admin")
       (#help :! "Initial admin address")
-    toLong (Name :: Name s) = concat $ flip map (symbolVal $ Proxy @s) \case
+    toLong (_ :: Name s) = concat $ flip map (symbolVal $ Proxy @s) \case
       x | isUpper x -> ['-', toLower x]
         | otherwise -> [x]
     naturalParser ctor label deflt help =

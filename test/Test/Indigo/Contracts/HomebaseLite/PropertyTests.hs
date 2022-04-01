@@ -10,16 +10,16 @@ module Test.Indigo.Contracts.HomebaseLite.PropertyTests
 import Lorentz (Address, toAddress)
 
 import Data.Default
-import qualified Data.Map as Map
+import Data.Map qualified as Map
 import Hedgehog (Property, forAll, property, withTests)
-import qualified Hedgehog.Gen as Gen
-import qualified Hedgehog.Range as Range
+import Hedgehog.Gen qualified as Gen
+import Hedgehog.Range qualified as Range
 import Time.Units (sec)
 
 import Hedgehog.Gen.Michelson
 import Hedgehog.Gen.Tezos.Core
-import qualified Indigo.Contracts.FA2Sample as FA2
-import qualified Lorentz.Contracts.Spec.FA2Interface as FA2
+import Indigo.Contracts.FA2Sample qualified as FA2
+import Lorentz.Contracts.Spec.FA2Interface qualified as FA2
 import Morley.Michelson.Typed.Haskell.Value (bmMap)
 import Morley.Tezos.Core
 import Morley.Util.Named
