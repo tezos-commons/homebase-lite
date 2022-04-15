@@ -10,7 +10,7 @@ rec {
   xrefcheck = import sources.xrefcheck;
   morley-infra = import sources.morley-infra;
 
-  inherit (morley-infra) stack2cabal tezos-client weeder-hacks;
+  inherit (morley-infra) stack2cabal tezos-client weeder-hacks run-chain-tests;
 
   # all local packages and their subdirectories
   # we need to know subdirectories for weeder and for cabal check
