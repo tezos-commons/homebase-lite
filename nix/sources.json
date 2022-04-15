@@ -5,10 +5,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "hackage.nix",
-        "rev": "4ef9bd3a32316ce236164c7ebff00ebeb33236e2",
-        "sha256": "1jgnim5c9vahr1h33zm1kgyrgh39bwph32kb8f98634409fi5apb",
+        "rev": "92a2b1faff6afb43b217bf8b34e48147d5505e77",
+        "sha256": "0nyhz0a1rwfyavhhknh1822rm2vc2a97r7k94dsf0nhsh1ing3pc",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/hackage.nix/archive/4ef9bd3a32316ce236164c7ebff00ebeb33236e2.tar.gz",
+        "url": "https://github.com/input-output-hk/hackage.nix/archive/92a2b1faff6afb43b217bf8b34e48147d5505e77.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "haskell-nix-weeder": {
@@ -53,10 +53,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "stackage.nix",
-        "rev": "48e1188855ca38f3b7e2a8dba5352767a2f0a8f7",
-        "sha256": "0mbgws8aci00rg9114zawqjdq4smc583pjfvcg4lpcmzx3bxvhz5",
+        "rev": "8222c5eef15f0882412a4afc5bfc9d3a70edef1d",
+        "sha256": "0169qvd3xb3a3bcr2wj5yqrhb9v5i5198jp1zawlgimq4px8li1y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/stackage.nix/archive/48e1188855ca38f3b7e2a8dba5352767a2f0a8f7.tar.gz",
+        "url": "https://github.com/input-output-hk/stackage.nix/archive/8222c5eef15f0882412a4afc5bfc9d3a70edef1d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "tezos-packaging": {
