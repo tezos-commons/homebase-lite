@@ -8,8 +8,9 @@ rec {
   pkgs = import ./nix/nixpkgs-with-haskell-nix.nix {};
   pkgsStatic = pkgs.pkgsCross.musl64;
   xrefcheck = import sources.xrefcheck;
-  weeder-hacks = import sources.haskell-nix-weeder { inherit pkgs; };
-  tezos-client = (import "${sources.tezos-packaging}/nix/build/pkgs.nix" {}).ocamlPackages.tezos-client;
+  morley-infra = import sources.morley-infra;
+
+  inherit (morley-infra) stack2cabal tezos-client weeder-hacks run-chain-tests;
 
   # all local packages and their subdirectories
   # we need to know subdirectories for weeder and for cabal check
@@ -145,23 +146,9 @@ rec {
   build-release = { sha, date }@commitInfo:
     (hs-pkgs {release = true; optimize = true; commitSha = sha; commitDate = date;}).homebase-lite.components.exes.homebase-lite;
 
-  # nixpkgs has weeder 2, but we use weeder 1
-  weeder-legacy = pkgs.haskellPackages.callHackageDirect {
-    pkg = "weeder";
-    ver = "1.0.9";
-    sha256 = "0gfvhw7n8g2274k74g8gnv1y19alr1yig618capiyaix6i9wnmpa";
-  } {};
-
   # a derivation which generates a script for running weeder
-  weeder-script = weeder-hacks.weeder-script {
+  weeder-script = morley-infra.weeder-script {
     hs-pkgs = hs-pkgs-development;
-    local-packages = local-packages;
-    weeder = weeder-legacy;
+    inherit local-packages;
   };
-
-  # stack2cabal is broken because of strict constraints, set 'jailbreak' to ignore them
-  stack2cabal = pkgs.haskell.lib.overrideCabal pkgs.haskellPackages.stack2cabal (drv: {
-    jailbreak = true;
-    broken = false;
-  });
 }
