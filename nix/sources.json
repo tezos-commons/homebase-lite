@@ -5,22 +5,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "hackage.nix",
-        "rev": "4ef9bd3a32316ce236164c7ebff00ebeb33236e2",
-        "sha256": "1jgnim5c9vahr1h33zm1kgyrgh39bwph32kb8f98634409fi5apb",
+        "rev": "92a2b1faff6afb43b217bf8b34e48147d5505e77",
+        "sha256": "0nyhz0a1rwfyavhhknh1822rm2vc2a97r7k94dsf0nhsh1ing3pc",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/hackage.nix/archive/4ef9bd3a32316ce236164c7ebff00ebeb33236e2.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "haskell-nix-weeder": {
-        "branch": "master",
-        "description": "haskell.nix + weeder",
-        "homepage": null,
-        "owner": "serokell",
-        "repo": "haskell-nix-weeder",
-        "rev": "a959fce7499df473e13336959cba77fbc87f3b7f",
-        "sha256": "1pmlndvbhzxj1k5f87d9dxfa00zbvmkmvnbd1davzwg77bd639l0",
-        "type": "tarball",
-        "url": "https://github.com/serokell/haskell-nix-weeder/archive/a959fce7499df473e13336959cba77fbc87f3b7f.tar.gz",
+        "url": "https://github.com/input-output-hk/hackage.nix/archive/92a2b1faff6afb43b217bf8b34e48147d5505e77.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "haskell.nix": {
@@ -34,6 +22,13 @@
         "type": "tarball",
         "url": "https://github.com/input-output-hk/haskell.nix/archive/14f740c7c8f535581c30b1697018e389680e24cb.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "morley-infra": {
+        "rev": "7f3609264ee708576b1d2f22fee789f713ab7975",
+        "sha256": "031rc2bh3a7gnvhiv602g6xa532m56cfwmrwbxnrl0bc3g7d9rrk",
+        "type": "tarball",
+        "url": "https://gitlab.com/morley-framework/morley-infra/-/archive/7f3609264ee708576b1d2f22fee789f713ab7975/morley-infra-7f3609264ee708576b1d2f22fee789f713ab7975.tar.gz",
+        "url_template": "https://gitlab.com/morley-framework/morley-infra/-/archive/<rev>/morley-infra-<rev>.tar.gz"
     },
     "nixpkgs": {
         "branch": "master",
@@ -53,22 +48,10 @@
         "homepage": "",
         "owner": "input-output-hk",
         "repo": "stackage.nix",
-        "rev": "48e1188855ca38f3b7e2a8dba5352767a2f0a8f7",
-        "sha256": "0mbgws8aci00rg9114zawqjdq4smc583pjfvcg4lpcmzx3bxvhz5",
+        "rev": "8222c5eef15f0882412a4afc5bfc9d3a70edef1d",
+        "sha256": "0169qvd3xb3a3bcr2wj5yqrhb9v5i5198jp1zawlgimq4px8li1y",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/stackage.nix/archive/48e1188855ca38f3b7e2a8dba5352767a2f0a8f7.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "tezos-packaging": {
-        "branch": "master",
-        "description": "Various form of distribution for tezos-related executables",
-        "homepage": "",
-        "owner": "serokell",
-        "repo": "tezos-packaging",
-        "rev": "ae70b2877cfee505fc353e1591d59c70d9d94a56",
-        "sha256": "078k3c1153l06q7icibhqcr4diq1h54mkdmvk11i90g6x3rc9h1p",
-        "type": "tarball",
-        "url": "https://github.com/serokell/tezos-packaging/archive/ae70b2877cfee505fc353e1591d59c70d9d94a56.tar.gz",
+        "url": "https://github.com/input-output-hk/stackage.nix/archive/8222c5eef15f0882412a4afc5bfc9d3a70edef1d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "xrefcheck": {

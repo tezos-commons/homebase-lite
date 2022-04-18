@@ -5,7 +5,7 @@ env:
   TEZOS_CLIENT_UNSAFE_DISABLE_DISCLAIMER: "Y"
   # this key is defined in local-chain bootstrap accounts list in
   # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
-  TASTY_CLEVELAND_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
+  CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
 
 steps:
   - label: hlint
@@ -48,24 +48,27 @@ steps:
     - nix-build ci.nix -A packages.homebase-lite.tests.homebase-lite-test
     - ./result/bin/homebase-lite-test --cleveland-mode=disable-network
 
-  - label: test-local-chain-011
+  - label: test-local-chain-012
     if: *not_scheduled_autodoc
     env:
-      TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8734"
+      TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8733"
     depends_on:
       - build
       - test
     commands: &network-test
     - nix-build ci.nix -A packages.homebase-lite.tests.homebase-lite-test
-    - export TASTY_CLEVELAND_DATA_DIR="$(mktemp -d --tmpdir="$$PWD")"
-    - nix run -f ci.nix tezos-client -c
-      ./result/bin/homebase-lite-test --cleveland-mode=only-network
+    - $(nix-build ci.nix -A run-chain-tests
+      --argstr refill-balance 90
+      --argstr node-endpoint $$TASTY_CLEVELAND_NODE_ENDPOINT
+      --argstr step-moneybag $$CHAIN_TEST_MONEYBAG_SECRET_KEY --no-out-link
+      --argstr scenario './result/bin/homebase-lite-test --cleveland-mode=only-network')
 
-  - label: scheduled hangzhounet test
+
+  - label: scheduled ithacanet test
     if: build.source == "schedule"
     depends_on: build
     env:
-      TASTY_CLEVELAND_NODE_ENDPOINT: "https://hangzhou.testnet.tezos.serokell.team"
+      TASTY_CLEVELAND_NODE_ENDPOINT: "https://ithaca.testnet.tezos.serokell.team"
     commands: *network-test
     retry:
       automatic:
