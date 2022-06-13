@@ -3,9 +3,6 @@
 
 env:
   TEZOS_CLIENT_UNSAFE_DISABLE_DISCLAIMER: "Y"
-  # this key is defined in local-chain bootstrap accounts list in
-  # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
-  CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
 
 steps:
   - label: hlint
@@ -30,6 +27,7 @@ steps:
     if: *not_scheduled_autodoc
     commands:
     - nix run -f ci.nix xrefcheck -c xrefcheck
+    soft_fail: true
     retry:
       automatic:
         limit: 1
@@ -52,6 +50,9 @@ steps:
     if: *not_scheduled_autodoc
     env:
       TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8733"
+      # this key is defined in local-chain bootstrap accounts list in
+      # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
+      CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
     depends_on:
       - build
       - test
@@ -69,6 +70,9 @@ steps:
     if: *not_scheduled_autodoc
     env:
       TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8734"
+      # this key is defined in local-chain bootstrap accounts list in
+      # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
+      CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
     depends_on:
       - build
       - test
@@ -79,6 +83,22 @@ steps:
     depends_on: build
     env:
       TASTY_CLEVELAND_NODE_ENDPOINT: "https://ithaca.testnet.tezos.serokell.team"
+      # this key is defined in local-chain bootstrap accounts list in
+      # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
+      CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
+    commands: *network-test
+    retry:
+      automatic:
+        limit: 1
+    timeout_in_minutes: 240
+
+  - label: scheduled jakartanet test
+    if: build.source == "schedule"
+    depends_on: build
+    env:
+      TASTY_CLEVELAND_NODE_ENDPOINT: "https://jakarta.testnet.tezos.serokell.team"
+      CHAIN_TEST_MONEYBAG_SECRET_KEY: "$JAKARTANET_MONEYBAG"
+      CHAIN_TEST_MONEYBAG_PASSWORD: "$JAKARTANET_MONEYBAG_PASSWORD"
     commands: *network-test
     retry:
       automatic:
