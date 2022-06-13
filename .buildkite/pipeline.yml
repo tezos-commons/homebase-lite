@@ -65,6 +65,14 @@ steps:
       --no-out-link
       --argstr scenario './result/bin/homebase-lite-test --cleveland-mode=only-network')
 
+  - label: test-local-chain-013
+    if: *not_scheduled_autodoc
+    env:
+      TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8734"
+    depends_on:
+      - build
+      - test
+    commands: *network-test
 
   - label: scheduled ithacanet test
     if: build.source == "schedule"
