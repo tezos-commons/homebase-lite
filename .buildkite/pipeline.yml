@@ -46,10 +46,10 @@ steps:
     - nix-build ci.nix -A packages.homebase-lite.tests.homebase-lite-test
     - ./result/bin/homebase-lite-test --cleveland-mode=disable-network
 
-  - label: test-local-chain-012
+  - label: test-local-chain-013
     if: *not_scheduled_autodoc
     env:
-      TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8733"
+      TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8734"
       # this key is defined in local-chain bootstrap accounts list in
       # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
       CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
@@ -65,32 +65,6 @@ steps:
       --argstr step-moneybag-password "$$CHAIN_TEST_MONEYBAG_PASSWORD"
       --no-out-link
       --argstr scenario './result/bin/homebase-lite-test --cleveland-mode=only-network')
-
-  - label: test-local-chain-013
-    if: *not_scheduled_autodoc
-    env:
-      TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8734"
-      # this key is defined in local-chain bootstrap accounts list in
-      # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
-      CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
-    depends_on:
-      - build
-      - test
-    commands: *network-test
-
-  - label: scheduled ithacanet test
-    if: build.source == "schedule"
-    depends_on: build
-    env:
-      TASTY_CLEVELAND_NODE_ENDPOINT: "https://ithaca.testnet.tezos.serokell.team"
-      # this key is defined in local-chain bootstrap accounts list in
-      # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
-      CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
-    commands: *network-test
-    retry:
-      automatic:
-        limit: 1
-    timeout_in_minutes: 240
 
   - label: scheduled jakartanet test
     if: build.source == "schedule"
