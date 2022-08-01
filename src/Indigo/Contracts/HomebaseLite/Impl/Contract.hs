@@ -41,4 +41,4 @@ indigoContract param = defContract $ docGroup "Homebase Lite" do
     )
 
 lorentzContract :: L.Contract Parameter Storage ()
-lorentzContract = defaultContract $ optimize $ compileIndigoContract indigoContract
+lorentzContract = defaultContract $ optimize $ unContractCode $ compileIndigoContract indigoContract

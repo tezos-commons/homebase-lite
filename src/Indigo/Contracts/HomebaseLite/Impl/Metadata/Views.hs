@@ -18,10 +18,10 @@ import Indigo.Contracts.HomebaseLite.Optimizer
 import Indigo.Contracts.HomebaseLite.Types
 
 currentConfigCode :: ViewCode Storage Configuration
-currentConfigCode = WithoutParam $ optimize $ toField #sConfiguration
+currentConfigCode = WithoutParam $ mkLambda $ optimize $ toField #sConfiguration
 
 proposalInfoCode :: ViewCode Storage ProposalInfo
-proposalInfoCode = WithParam @("proposal_uri" :! URI) $ optimize do
+proposalInfoCode = WithParam @("proposal_uri" :! URI) $ mkLambda $ optimize do
   dip (toField #sProposals)
   get
   ifSome nop $ failCustomNoArg #noSuchProposal

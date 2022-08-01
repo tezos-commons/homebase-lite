@@ -12,7 +12,7 @@ module Indigo.Contracts.HomebaseLite.Impl.Admin
   , configure
   ) where
 
-import Indigo hiding (errorDoc)
+import Indigo
 
 import Morley.Util.Interpolate (itu)
 
@@ -51,8 +51,8 @@ acceptAdmin _ = do
   setStorageField @Storage #sAdmin candidate
 
 -- TODO [morley#748] should use senderIsNotAdmin, but can't because Lorentz exprots it already
-[errorDoc| "senderIsNotAdmin_" exception "The sender is not the current admin"|]
-[errorDoc| "senderIsNotAdminCandidate" exception "The sender is not the current admin candidate"|]
+[errorDocArg| "senderIsNotAdmin_" exception "The sender is not the current admin"|]
+[errorDocArg| "senderIsNotAdminCandidate" exception "The sender is not the current admin candidate"|]
 
 addMaintainers :: HomebaseLiteEntrypoint [Address]
 addMaintainers newMaintainers = do
@@ -102,4 +102,4 @@ checkSenderIsMaintainer =
   unless (mem sender $ storage #! #sMaintainers) do
     failCustomNoArg @() #senderIsNotMaintainer
 
-[errorDoc| "senderIsNotMaintainer" exception "The sender does not have the `maintainer` role"|]
+[errorDocArg| "senderIsNotMaintainer" exception "The sender does not have the `maintainer` role"|]
