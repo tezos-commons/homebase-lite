@@ -6,30 +6,29 @@ module Main
   ) where
 
 import Lorentz
-  (NiceStorage, attachDocCommons, buildMarkdownDoc, def, niceStorageEvi, printLorentzValue,
-  toMichelsonContract, toVal, zeroMutez)
+  (NiceStorage, attachDocCommons, buildMarkdownDoc, def, niceStorageEvi,
+  printLorentzValue, toMichelsonContract, toVal, zeroMutez)
 
 import Data.Aeson.Encode.Pretty (encodePretty, encodePrettyToTextBuilder)
-import Data.ByteString.Lazy.Char8 qualified as BS (putStrLn)
+import qualified Data.ByteString.Lazy.Char8 as BS (putStrLn)
 import Data.Char (isUpper, toLower)
 import Data.Constraint ((\\))
 import Data.Text.Lazy.Builder (toLazyText)
-import Data.Text.Lazy.IO.Utf8 qualified as Utf8 (writeFile)
+import qualified Data.Text.Lazy.IO.Utf8 as Utf8 (writeFile)
 import Fmt (pretty)
 import GHC.TypeLits (symbolVal)
 import Main.Utf8 (withUtf8)
-import Options.Applicative qualified as Opt
+import qualified Options.Applicative as Opt
 import Options.Applicative.Help.Pretty (Doc, linebreak)
 import System.Environment (withProgName)
 
+import Morley.Tezos.Address.Alias (AddressOrAlias(..), Alias(..))
 import Morley.CLI (addressOption, onelineOption)
-import Morley.Client
-  (AddressOrAlias(AddressResolved), clientConfigParser, lOriginateContract, mkAliasHint,
-  mkMorleyClientEnv, runMorleyClientM)
+import Morley.Client (clientConfigParser, lOriginateContract, mkMorleyClientEnv, runMorleyClientM)
 import Morley.Micheline (Expression, toExpression)
 import Morley.Michelson.Analyzer (analyze)
 import Morley.Michelson.Printer (printTypedContract)
-import Morley.Michelson.Typed (cCode)
+import Morley.Michelson.Typed (cCode, unContractCode)
 import Morley.Util.Named (Name, pattern (:!), type (:!))
 
 import Indigo.Contracts.HomebaseLite
@@ -135,7 +134,7 @@ argParser = Opt.subparser $ mconcat $
 
     analyzerSubCmd =
       mkCommandParser "analyze" "Analyze the contract and prints statistics about it." $
-        pure $ putTextLn $ pretty $ analyze $ cCode compiledContract
+        pure $ putTextLn $ pretty $ analyze $ unContractCode $ cCode compiledContract
 
     storageSubCmd = mkCommandParser "storage" "Print initial storage for the contract" $
       (<*> michelineOption) $
@@ -146,13 +145,13 @@ argParser = Opt.subparser $ mconcat $
 
     originateSubCmd = mkCommandParser "originate" "Originate the contract. \
       \Note that the origination is run as the contract admin." $
-      (<*> clientConfigParser (pure Nothing)) $
+      (<*> clientConfigParser) $
       (<*> storageParser) $
       nameOption <&> \name storage@Storage{..} cconf -> do
         putStrLn $ "Originating " <> name <> "..."
         env <- mkMorleyClientEnv cconf
         (_, addr) <- runMorleyClientM env $ do
-          lOriginateContract True (mkAliasHint name) (AddressResolved sAdmin) zeroMutez
+          lOriginateContract True (Alias name) (AddressResolved sAdmin) zeroMutez
             lorentzContract storage Nothing
         putStrLn $ "Originated " <> name <> " as " <> pretty addr
 
