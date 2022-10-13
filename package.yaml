@@ -101,7 +101,6 @@ library:
     - morley-ledgers
     - morley-metadata
     - morley-prelude
-    - template-haskell
     - text
 
 executables:

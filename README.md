@@ -6,7 +6,7 @@
 
 # Homebase Lite
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT) [![Build status](https://badge.buildkite.com/680d303398dd927c109b9c0324e7eacf9c7e2e422210ffb746.svg?branch=master)](https://buildkite.com/serokell/homebase-lite)
+ <!-- xrefcheck: ignore link -->[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT) [![Build status](https://badge.buildkite.com/680d303398dd927c109b9c0324e7eacf9c7e2e422210ffb746.svg?branch=master)](https://buildkite.com/serokell/homebase-lite)
 
 Homebase Lite is a Tezos smart contract for a decentralized voting system, based
 on “snapshots” of the blockchain.
