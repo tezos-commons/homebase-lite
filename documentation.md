@@ -1,6 +1,6 @@
 # Homebase Lite
 
-**Code revision:** [4a698ce](https://github.com/tezos-commons/homebase-lite/commit/4a698ce6d4af33cf4707a37145fe11d5eb27c0b9) *(Tue Jun 28 15:18:16 2022 +0300)*
+**Code revision:** [e0fa25f](https://github.com/tezos-commons/homebase-lite/commit/e0fa25f91a3532e9f10d0fb1d458555f4145d657) *(Thu Oct 13 18:10:28 2022 +0530)*
 
 
 
@@ -60,8 +60,8 @@ It aims to be a very lightweight complement to Homebase.
   - [NotEnoughTokens](#errors-NotEnoughTokens)
   - [ProposalExpired](#errors-ProposalExpired)
   - [ProposalNotYetActive](#errors-ProposalNotYetActive)
+  - [SenderIsNotAdmin](#errors-SenderIsNotAdmin)
   - [SenderIsNotAdminCandidate](#errors-SenderIsNotAdminCandidate)
-  - [SenderIsNotAdmin_](#errors-SenderIsNotAdmin_)
   - [SenderIsNotMaintainer](#errors-SenderIsNotMaintainer)
 
 
@@ -132,18 +132,19 @@ invalidate the current candidate.
   + **In Michelson:** `address`
     + **Example:** <span id="example-id">`"KT1AEseqMV6fk2vtvQCVyA7ZCaxv7cpxtXdB"`</span>
 
+<p>
 <details>
   <summary><b>How to call this entrypoint</b></summary>
 
 0. Construct an argument for the entrypoint.
 1. Call contract's `set_admin` entrypoint passing the constructed argument.
 </details>
-<p>
+</p>
 
 
 
 **Possible errors:**
-* [`SenderIsNotAdmin_`](#errors-SenderIsNotAdmin_) — The sender is not the current admin
+* [`SenderIsNotAdmin`](#errors-SenderIsNotAdmin) — The sender is not the current admin
 
 
 
@@ -161,13 +162,14 @@ the role. Takes no input.
   + **In Michelson:** `unit`
     + **Example:** <span id="example-id">`Unit`</span>
 
+<p>
 <details>
   <summary><b>How to call this entrypoint</b></summary>
 
 0. Construct an argument for the entrypoint.
 1. Call contract's `accept_admin` entrypoint passing the constructed argument.
 </details>
-<p>
+</p>
 
 
 
@@ -192,18 +194,19 @@ the input list, this call is a no-op.
   + **In Michelson:** `(list address)`
     + **Example:** <span id="example-id">`{ "KT1AEseqMV6fk2vtvQCVyA7ZCaxv7cpxtXdB" }`</span>
 
+<p>
 <details>
   <summary><b>How to call this entrypoint</b></summary>
 
 0. Construct an argument for the entrypoint.
 1. Call contract's `add_maintainers` entrypoint passing the constructed argument.
 </details>
-<p>
+</p>
 
 
 
 **Possible errors:**
-* [`SenderIsNotAdmin_`](#errors-SenderIsNotAdmin_) — The sender is not the current admin
+* [`SenderIsNotAdmin`](#errors-SenderIsNotAdmin) — The sender is not the current admin
 
 
 
@@ -223,18 +226,19 @@ the input list, this call is a no-op.
   + **In Michelson:** `(list address)`
     + **Example:** <span id="example-id">`{ "KT1AEseqMV6fk2vtvQCVyA7ZCaxv7cpxtXdB" }`</span>
 
+<p>
 <details>
   <summary><b>How to call this entrypoint</b></summary>
 
 0. Construct an argument for the entrypoint.
 1. Call contract's `remove_maintainers` entrypoint passing the constructed argument.
 </details>
-<p>
+</p>
 
 
 
 **Possible errors:**
-* [`SenderIsNotAdmin_`](#errors-SenderIsNotAdmin_) — The sender is not the current admin
+* [`SenderIsNotAdmin`](#errors-SenderIsNotAdmin) — The sender is not the current admin
 
 
 
@@ -253,13 +257,14 @@ The sender must have a `maintainer` role.
   + **In Michelson:** `(pair (pair nat nat) nat nat)`
     + **Example:** <span id="example-id">`{ Pair 0 0; 0; 0 }`</span>
 
+<p>
 <details>
   <summary><b>How to call this entrypoint</b></summary>
 
 0. Construct an argument for the entrypoint.
 1. Call contract's `configure` entrypoint passing the constructed argument.
 </details>
-<p>
+</p>
 
 
 
@@ -284,13 +289,14 @@ A new proposal for the given IPFS URI will be initialized using the current
   + **In Michelson:** `(pair string (list string))`
     + **Example:** <span id="example-id">`Pair "hello" { "hello" }`</span>
 
+<p>
 <details>
   <summary><b>How to call this entrypoint</b></summary>
 
 0. Construct an argument for the entrypoint.
 1. Call contract's `propose` entrypoint passing the constructed argument.
 </details>
-<p>
+</p>
 
 
 
@@ -315,13 +321,14 @@ Takes the proposal's IPFS URI and a choice index (zero-based).
   + **In Michelson:** `(pair string nat)`
     + **Example:** <span id="example-id">`Pair "hello" 0`</span>
 
+<p>
 <details>
   <summary><b>How to call this entrypoint</b></summary>
 
 0. Construct an argument for the entrypoint.
 1. Call contract's `vote` entrypoint passing the constructed argument.
 </details>
-<p>
+</p>
 
 
 
@@ -353,18 +360,20 @@ used to check the governance token's balance of a `participant` that used the
   + **In Michelson:** `(list (pair (pair address nat) nat))`
     + **Example:** <span id="example-id">`{ Pair (Pair "KT1AEseqMV6fk2vtvQCVyA7ZCaxv7cpxtXdB" 0) 0 }`</span>
 
+<p>
 <details>
   <summary><b>How to call this entrypoint</b></summary>
 
 0. Construct an argument for the entrypoint.
 1. Call contract's `verify_min_balance` entrypoint passing the constructed argument.
 </details>
-<p>
+</p>
 
 
 
 **Possible errors:**
-* [`NotEnoughTokens`](#errors-NotEnoughTokens) — Some of the `balance`s in the list are less than `minimum_balance`
+* [`NotEnoughTokens`](#errors-NotEnoughTokens) — Some of the `balance`s in the list are
+less than `minimum_balance`
 
 
 
@@ -724,7 +733,8 @@ We distinquish several error classes:
 
 **Class:** Bad argument
 
-**Fires if:** The proposal has no choices, i.e. the provided list of available choices is empty
+**Fires if:** The proposal has no choices, i.e. the provided list of
+available choices is empty
 
 **Representation:** `EmptyChoices`
 
@@ -772,7 +782,8 @@ We distinquish several error classes:
 
 **Class:** Action exception
 
-**Fires if:** Some of the `balance`s in the list are less than `minimum_balance`
+**Fires if:** Some of the `balance`s in the list are
+less than `minimum_balance`
 
 **Representation:** `NotEnoughTokens`
 
@@ -800,6 +811,18 @@ We distinquish several error classes:
 
 **Representation:** `ProposalNotYetActive`
 
+<a name="errors-SenderIsNotAdmin"></a>
+
+---
+
+### `SenderIsNotAdmin`
+
+**Class:** Action exception
+
+**Fires if:** The sender is not the current admin
+
+**Representation:** `SenderIsNotAdmin`
+
 <a name="errors-SenderIsNotAdminCandidate"></a>
 
 ---
@@ -811,18 +834,6 @@ We distinquish several error classes:
 **Fires if:** The sender is not the current admin candidate
 
 **Representation:** `SenderIsNotAdminCandidate`
-
-<a name="errors-SenderIsNotAdmin_"></a>
-
----
-
-### `SenderIsNotAdmin_`
-
-**Class:** Action exception
-
-**Fires if:** The sender is not the current admin
-
-**Representation:** `SenderIsNotAdmin_`
 
 <a name="errors-SenderIsNotMaintainer"></a>
 
