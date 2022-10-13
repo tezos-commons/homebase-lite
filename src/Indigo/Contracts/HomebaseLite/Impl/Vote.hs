@@ -10,14 +10,14 @@ module Indigo.Contracts.HomebaseLite.Impl.Vote
   , verifyMinBalance
   ) where
 
-import Indigo hiding (errorDoc, (*))
+import Indigo hiding ((*))
 
 import Morley.Util.Interpolate (itu)
 
 import Indigo.Contracts.HomebaseLite.Impl.Utils
 import Indigo.Contracts.HomebaseLite.Types
 
-propose :: HasSideEffects => HomebaseLiteEntrypoint ("proposal_uri" :! URI, "choices" :! [MText])
+propose :: (IsNotInView, HasSideEffects) => HomebaseLiteEntrypoint ("proposal_uri" :! URI, "choices" :! [MText])
 propose par = do
   description [itu|
     Called by a `participant` to submit a new proposal.
@@ -65,12 +65,12 @@ verifyMinBalance bris = do
     when (bri #! #briBalance < storage #! #sConfiguration #! #cMinimumBalance) do
       failCustomNoArg @() #notEnoughTokens
 
-[errorDoc| "notEnoughTokens" exception "Some of the `balance`s in the list are
+[errorDocArg| "notEnoughTokens" exception "Some of the `balance`s in the list are
 less than `minimum_balance`"|]
-[errorDoc| "duplicateProposal" exception "A proposal for the same IPFS URI already exists"|]
-[errorDoc| "emptyChoices" bad-argument "The proposal has no choices, i.e. the provided list of
+[errorDocArg| "duplicateProposal" exception "A proposal for the same IPFS URI already exists"|]
+[errorDocArg| "emptyChoices" bad-argument "The proposal has no choices, i.e. the provided list of
 available choices is empty"|]
-[errorDoc| "noFA2Contract" contract-internal "Configured FA2 contract not found"|]
+[errorDocArg| "noFA2Contract" contract-internal "Configured FA2 contract not found"|]
 
 vote :: HomebaseLiteEntrypoint ("proposal_uri" :! URI, "choice_index" :! Natural)
 vote par = do
@@ -95,8 +95,8 @@ vote par = do
           failCustomNoArg @() #alreadyVoted
         pure $ votes +: (key, name #vote_choice choice)
 
-[errorDoc| "noSuchProposal" exception "No proposal for the given IPFS URI"|]
-[errorDoc| "noSuchChoice" exception "No choice with the given index available for the proposal"|]
-[errorDoc| "alreadyVoted" exception "The sender has already voted on this proposal"|]
-[errorDoc| "proposalNotYetActive" exception "The voting period for the proposal hasn't started yet"|]
-[errorDoc| "proposalExpired" exception "The voting period for the proposal has ended"|]
+[errorDocArg| "noSuchProposal" exception "No proposal for the given IPFS URI"|]
+[errorDocArg| "noSuchChoice" exception "No choice with the given index available for the proposal"|]
+[errorDocArg| "alreadyVoted" exception "The sender has already voted on this proposal"|]
+[errorDocArg| "proposalNotYetActive" exception "The voting period for the proposal hasn't started yet"|]
+[errorDocArg| "proposalExpired" exception "The voting period for the proposal has ended"|]

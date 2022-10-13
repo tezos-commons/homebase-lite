@@ -34,7 +34,7 @@ test_setAdmin =
       notAdmin <- newAddress "notAdmin"
       withSender notAdmin do
         call contract (Call @"Set_admin") newAdmin
-        & expectCustomErrorNoArg #senderIsNotAdmin_
+        & expectCustomErrorNoArg #senderIsNotAdmin
   , testScenario "subsequent calls to set_admin replace candidate" $ scenario do
       (admin, contract) <- deployContract
       newAdmin <- newFreshAddress "newAdmin"
@@ -102,7 +102,7 @@ test_addMaintainers =
       notAdmin <- newAddress "notAdmin"
       withSender notAdmin do
         call contract (Call @"Add_maintainers") [notAdmin]
-        & expectCustomErrorNoArg #senderIsNotAdmin_
+        & expectCustomErrorNoArg #senderIsNotAdmin
   ]
 
 test_removeMaintainers :: [TestTree]
@@ -119,7 +119,7 @@ test_removeMaintainers =
       notAdmin <- newAddress "notAdmin"
       withSender notAdmin do
         call contract (Call @"Remove_maintainers") [admin]
-        & expectCustomErrorNoArg #senderIsNotAdmin_
+        & expectCustomErrorNoArg #senderIsNotAdmin
   , testScenario "remove_maintainers succeeds with non-maintainer arguments" $ scenario do
       (admin, contract, newMaintainers) <- prepare
       notMaintainer <- newFreshAddress "notMaintainer"

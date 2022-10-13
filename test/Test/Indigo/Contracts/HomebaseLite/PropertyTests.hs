@@ -71,13 +71,13 @@ hprop_main = withTests 500 $ property $ do
     cMinimumBalance <- Gen.integral $ Range.linear 0 maxMinimumBalance
     pure Configuration{..}
   let tokenCount = maxMinimumBalance `div` 2
-  choices <- forAll $ Gen.list (Range.linear 0 100) genMText
-  uri <- forAll $ (#proposal_uri :!) . URI <$> genMText
+  choices <- forAll $ Gen.list (Range.linear 0 100) (genMText def)
+  uri <- forAll $ (#proposal_uri :!) . URI <$> genMText def
   votes <- forAll $ Gen.list (Range.linear 0 100)
     $ Gen.integral (Range.constant 0 100)
   let maxChoice = fromIntegralOverflowing $ length choices - 1
       validVotes = filter (<= maxChoice) votes
-  curTime <- forAll genTimestamp
+  curTime <- forAll (genTimestamp def)
   delay <- forAll $ Gen.integral (Range.linear 0 maxDelay)
   let expectation :: MonadEmulated caps m
                   => ContractHandle Parameter Storage () -> m () -> m ()
@@ -91,10 +91,10 @@ hprop_main = withTests 500 $ property $ do
             sort (Map.elems . bmMap . sVotes $ stor) @== (#vote_choice :!) <$> sort validVotes
 
       verifyStorage
-        :: forall caps m'. MonadEmulated caps m'
+        :: MonadEmulated caps m'
         => ContractHandle Parameter Storage ()
         -> (forall m. MonadCleveland caps m => Storage -> m ())
-        -> (forall m. MonadCleveland caps m => m ())
+        -> m' ()
         -> m' ()
       verifyStorage contract checks action = do
           action

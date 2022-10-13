@@ -32,7 +32,7 @@ test_metadata_simple =
       assert (hasError err declaredErrors) $ pretty err <> " defined in errors"
   where
     knownErrors =
-      [ LabelEx #senderIsNotAdmin_
+      [ LabelEx #senderIsNotAdmin
       , LabelEx #senderIsNotAdminCandidate
       , LabelEx #senderIsNotMaintainer
       , LabelEx #notEnoughTokens

@@ -23,13 +23,12 @@ import Options.Applicative.Help.Pretty (Doc, linebreak)
 import System.Environment (withProgName)
 
 import Morley.CLI (addressOption, onelineOption)
-import Morley.Client
-  (AddressOrAlias(AddressResolved), clientConfigParser, lOriginateContract, mkAliasHint,
-  mkMorleyClientEnv, runMorleyClientM)
+import Morley.Client (clientConfigParser, lOriginateContract, mkMorleyClientEnv, runMorleyClientM)
 import Morley.Micheline (Expression, toExpression)
 import Morley.Michelson.Analyzer (analyze)
 import Morley.Michelson.Printer (printTypedContract)
-import Morley.Michelson.Typed (cCode)
+import Morley.Michelson.Typed (cCode, unContractCode)
+import Morley.Tezos.Address.Alias (AddressOrAlias(..), Alias(..))
 import Morley.Util.Named (Name, pattern (:!), type (:!))
 
 import Indigo.Contracts.HomebaseLite
@@ -135,7 +134,7 @@ argParser = Opt.subparser $ mconcat $
 
     analyzerSubCmd =
       mkCommandParser "analyze" "Analyze the contract and prints statistics about it." $
-        pure $ putTextLn $ pretty $ analyze $ cCode compiledContract
+        pure $ putTextLn $ pretty $ analyze $ unContractCode $ cCode compiledContract
 
     storageSubCmd = mkCommandParser "storage" "Print initial storage for the contract" $
       (<*> michelineOption) $
@@ -146,13 +145,13 @@ argParser = Opt.subparser $ mconcat $
 
     originateSubCmd = mkCommandParser "originate" "Originate the contract. \
       \Note that the origination is run as the contract admin." $
-      (<*> clientConfigParser (pure Nothing)) $
+      (<*> clientConfigParser) $
       (<*> storageParser) $
       nameOption <&> \name storage@Storage{..} cconf -> do
         putStrLn $ "Originating " <> name <> "..."
         env <- mkMorleyClientEnv cconf
         (_, addr) <- runMorleyClientM env $ do
-          lOriginateContract True (mkAliasHint name) (AddressResolved sAdmin) zeroMutez
+          lOriginateContract True (Alias name) (AddressResolved sAdmin) zeroMutez
             lorentzContract storage Nothing
         putStrLn $ "Originated " <> name <> " as " <> pretty addr
 
