@@ -1,13 +1,15 @@
 -- SPDX-FileCopyrightText: 2022 Tezos Commons
 -- SPDX-License-Identifier: LicenseRef-MIT-TC
 
+{-# OPTIONS_GHC -Wno-orphans #-}
+
 module Main
   ( main
   ) where
 
 import Lorentz
   (NiceStorage, attachDocCommons, buildMarkdownDoc, def, niceStorageEvi, printLorentzValue,
-  toMichelsonContract, toVal, zeroMutez)
+  toAddress, toMichelsonContract, toVal, zeroMutez)
 
 import Data.Aeson.Encode.Pretty (encodePretty, encodePrettyToTextBuilder)
 import Data.ByteString.Lazy.Char8 qualified as BS (putStrLn)
@@ -15,7 +17,7 @@ import Data.Char (isUpper, toLower)
 import Data.Constraint ((\\))
 import Data.Text.Lazy.Builder (toLazyText)
 import Data.Text.Lazy.IO.Utf8 qualified as Utf8 (writeFile)
-import Fmt (pretty)
+import Fmt (nameF, pretty)
 import GHC.TypeLits (symbolVal)
 import Main.Utf8 (withUtf8)
 import Options.Applicative qualified as Opt
@@ -24,21 +26,26 @@ import System.Environment (withProgName)
 
 import Morley.CLI (addressOption, onelineOption)
 import Morley.Client (clientConfigParser, lOriginateContract, mkMorleyClientEnv, runMorleyClientM)
+import Morley.Client.RPC.Types
 import Morley.Micheline (Expression, toExpression)
 import Morley.Michelson.Analyzer (analyze)
 import Morley.Michelson.Printer (printTypedContract)
 import Morley.Michelson.Typed (cCode, unContractCode)
+import Morley.Tezos.Address
 import Morley.Tezos.Address.Alias (AddressOrAlias(..), Alias(..))
+import Morley.Tezos.Address.Kinds
+import Morley.Util.CLI (HasCLReader(..), mkCLOptionParser)
 import Morley.Util.Named (Name, pattern (:!), type (:!))
+import Morley.Util.Typeable
 
 import Indigo.Contracts.HomebaseLite
 import Indigo.Contracts.HomebaseLite.Impl.Metadata (gitRev, versionString)
 import Indigo.Contracts.HomebaseLite.Types
 
 fa2ConfigParser :: Opt.Parser ("fa2config" :! FA2Config)
-fa2ConfigParser = fmap (#fa2config :!) $ FA2Config <$> addrParser <*> tokenIdParser
+fa2ConfigParser = fmap (#fa2config :!) $ FA2Config <$> (toAddress <$> addrParser) <*> tokenIdParser
   where
-    addrParser = addressOption Nothing
+    addrParser = addressOption @'AddressKindContract Nothing
       (#name :! "fa2-address")
       (#help :! "FA2 contract address")
     tokenIdParser = fmap TokenId . Opt.option (Opt.maybeReader readMaybe) $
@@ -82,7 +89,8 @@ storageParser = initialStorage
   <*> fa2ConfigParser
   <*> contractMetadataConfigParser
   where
-    adminParser = (#admin :!) <$> addressOption Nothing
+
+    adminParser = (#admin :!) <$> (mkCLOptionParser @L1Address) Nothing
       (#name :! "admin")
       (#help :! "Initial admin address")
     toLong (_ :: Name s) = concat $ flip map (symbolVal $ Proxy @s) \case
@@ -105,6 +113,19 @@ storageParser = initialStorage
       \expressed as a constant number to reach"
     minimumBalanceParser = naturalParser id #minimumBalance 0
       "The minimum amount of governance tokens needed to submit a new proposal"
+
+instance HasCLReader L1Address where
+  getMetavar = "CONTRACT OR IMPLICIT ADDRESS"
+  getReader = do
+    addrStr <- Opt.str
+    case parseAddress addrStr of
+      Right (MkAddress (addr :: KindedAddress kind')) -> case addr of
+        ImplicitAddress{} -> pure $ MkConstrainedAddress addr
+        ContractAddress{} -> pure $ MkConstrainedAddress addr
+        TxRollupAddress{} ->
+          Opt.readerError $ pretty $ nameF "Unexpected address kind" $
+            "expected contract or implicit address, but got transaction rollup"
+      Left err -> Opt.readerError $ pretty err
 
 argParser :: Opt.Parser (IO ())
 argParser = Opt.subparser $ mconcat $
@@ -148,11 +169,16 @@ argParser = Opt.subparser $ mconcat $
       (<*> clientConfigParser) $
       (<*> storageParser) $
       nameOption <&> \name storage@Storage{..} cconf -> do
-        putStrLn $ "Originating " <> name <> "..."
+        putTextLn $ "Originating " <> name <> "..."
         env <- mkMorleyClientEnv cconf
-        (_, addr) <- runMorleyClientM env $ do
-          lOriginateContract True (Alias name) (AddressResolved sAdmin) zeroMutez
-            lorentzContract storage Nothing
+        (_ , addr) <- runMorleyClientM @(OperationHash, ContractAddress) env $ do
+          case sAdmin of
+            MkConstrainedAddress a ->
+              case isImplicitAddress a of
+                Just Refl -> do
+                  lOriginateContract True (ContractAlias name) (AddressResolved a) zeroMutez
+                    lorentzContract storage Nothing
+                Nothing -> error "Admin needs to be an implicit address!"
         putStrLn $ "Originated " <> name <> " as " <> pretty addr
 
     versionSubCmd = mkCommandParser "version" "Show binary revision number" $

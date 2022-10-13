@@ -9,6 +9,7 @@ module Test.Indigo.Contracts.HomebaseLite.AsRPC
   , TokenIdRPC(..)
   , FA2ConfigRPC(..)
   , toRPC
+  , toRPCProposalInfo
   ) where
 
 import Test.Cleveland
@@ -21,12 +22,24 @@ deriveRPC "Configuration"
 deriveRPC "TokenId"
 deriveRPC "FA2Config"
 deriveRPC "Storage"
+deriveRPC "ProposalInfo"
 
 deriving stock instance Show SecondsRPC
 deriving stock instance Eq SecondsRPC
 deriving stock instance Show ConfigurationRPC
 deriving stock instance Eq ConfigurationRPC
+deriving stock instance Eq ProposalInfoRPC
+deriving stock instance Show ProposalInfoRPC
 
 toRPC :: Configuration -> ConfigurationRPC
 toRPC (Configuration (Seconds a) (Seconds b) c d) =
   ConfigurationRPC (SecondsRPC a) (SecondsRPC b) c d
+
+toRPCProposalInfo :: ProposalInfo -> ProposalInfoRPC
+toRPCProposalInfo ProposalInfo {..} = ProposalInfoRPC
+  { piLevelRPC = piLevel
+  , piStartsAtRPC = piStartsAt
+  , piExpiresAtRPC = piExpiresAt
+  , piQuorumThresholdRPC = piQuorumThreshold
+  , piChoicesRPC = piChoices
+  }
