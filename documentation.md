@@ -1,6 +1,6 @@
 # Homebase Lite
 
-**Code revision:** [e0fa25f](https://github.com/tezos-commons/homebase-lite/commit/e0fa25f91a3532e9f10d0fb1d458555f4145d657) *(Thu Oct 13 18:10:28 2022 +0530)*
+**Code revision:** [e4414f1](https://github.com/tezos-commons/homebase-lite/commit/e4414f1ed36d26d3412da84b7b86d5fa491738ee) *(Sat Oct 15 01:17:04 2022 +0530)*
 
 
 
@@ -426,7 +426,7 @@ even if it refers to a contract; this won't be checked, so passing an entrypoint
 name may result in unexpected errors.
 
 
-**Final Michelson representation:** `address`
+**Final Michelson representation:** `key_hash`
 
 
 
