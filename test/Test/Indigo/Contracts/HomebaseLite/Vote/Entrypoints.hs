@@ -28,7 +28,7 @@ test_propose = testGroup "propose entrypoint"
       lastLevel <- getLevel
       timestamp <- getNow
       withSender holder do
-        call contract (Call @"Propose") (uri, #choices :! choices)
+        transfer contract $ calling (ep @"Propose") (uri, #choices :! choices)
       storage <- getStorage contract
       let config = sConfigurationRPC storage
           proposals = sProposalsRPC storage
@@ -43,22 +43,22 @@ test_propose = testGroup "propose entrypoint"
       checkCompares (piExpiresAt proposal) (>=) timestamp
   , testScenario "fails on not enough tokens" $ scenario do
       (_, _, contract) <- deployWithFA2
-      call contract (Call @"Propose") (uri, #choices :! choices)
+      (transfer contract $ calling (ep @"Propose") (uri, #choices :! choices))
         & expectCustomErrorNoArg #notEnoughTokens
   , testScenario "fails on empty choice list" $ scenario do
       (holder, _, contract) <- deployWithFA2
       withSender holder do
-        call contract (Call @"Propose") (uri, #choices :! [])
+        (transfer contract $ calling (ep @"Propose") (uri, #choices :! []))
           & expectCustomErrorNoArg #emptyChoices
   , testScenario "fails on duplicate proposal" $ scenario do
       (holder, _, contract) <- deployWithFA2
       withSender holder do
-        call contract (Call @"Propose") (uri, #choices :! choices)
-        call contract (Call @"Propose") (uri, #choices :! ["Other", "Choices"])
+        transfer contract $ calling (ep @"Propose") (uri, #choices :! choices)
+        (transfer contract $ calling (ep @"Propose") (uri, #choices :! ["Other", "Choices"]))
           & expectCustomErrorNoArg #duplicateProposal
   , testScenario "fails on invalid configuration" $ scenario do
       (_, contract) <- deployContract
-      call contract (Call @"Propose") (uri, #choices :! choices)
+      (transfer contract $ calling (ep @"Propose") (uri, #choices :! choices))
         & expectCustomErrorNoArg #noFA2Contract
   ]
   where
@@ -75,9 +75,9 @@ test_vote = do
           (_, contract) <- deployContract' $ addProposal ts
           participant <- newAddress "participant"
           withSender participant $ replicateM_ nvotes do
-            call contract (Call @"Vote") (#proposal_uri :! URI uri, #choice_index :! idx)
+            transfer contract $ calling (ep @"Vote") (#proposal_uri :! URI uri, #choice_index :! idx)
           votes <- sVotesRPC <$> getStorage contract
-          getBigMapValue votes (#proposal_uri :! URI uri, #voter_address :! participant)
+          getBigMapValue votes (#proposal_uri :! URI uri, #voter_address :! (toAddress participant))
             @@== #vote_choice :! idx
         where
           addProposal ts s@Storage{..} = s{

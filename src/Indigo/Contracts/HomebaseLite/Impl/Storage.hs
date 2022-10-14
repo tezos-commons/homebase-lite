@@ -11,12 +11,13 @@ module Indigo.Contracts.HomebaseLite.Impl.Storage
 import Indigo hiding ((*))
 
 import Morley.Util.Named (arg)
+import Morley.Tezos.Address
 
 import Indigo.Contracts.HomebaseLite.Impl.Metadata
 import Indigo.Contracts.HomebaseLite.Types
 
 initialStorage
-  :: ("admin" :! Address)
+  :: ("admin" :! L1Address)
   -> ("expireTime" :! Seconds)
   -> ("voteDelay" :! Seconds)
   -> ("quorumThreshold" :! Natural)
@@ -33,8 +34,8 @@ initialStorage
   (arg #fa2config -> fa2config)
   (arg #metadataConfig -> contractMetadataConfig)
   = Storage
-    { sAdmin = admin
-    , sAdminCandidate = admin
+    { sAdmin = toAddress admin
+    , sAdminCandidate = toAddress admin
     , sMaintainers = def
     , sConfiguration = Configuration
       { cExpireTime = expireTime

@@ -6,14 +6,10 @@ module Test.Indigo.Contracts.HomebaseLite.Metadata.Views
   , test_proposalInfo
   ) where
 
-import Data.Text (isInfixOf)
 import Test.Tasty (TestTree)
 
-import Morley.Metadata
 import Morley.Util.Named
 import Test.Cleveland
-import Test.Cleveland.Internal.Exceptions (WithCallStack(..))
-import Test.Cleveland.Internal.Pure (TestError(CustomTestError))
 import Test.Morley.Metadata
 
 import Indigo.Contracts.HomebaseLite
@@ -25,8 +21,8 @@ test_currentConfig :: TestTree
 test_currentConfig =
   testScenarioOnEmulator "currentConfig view works" $ scenarioEmulated do
     (admin, contract) <- deployContract
-    Showing <$> callOffChainView contract "currentConfig" NoParam
-      @@== Showing (sConfiguration (defaultStorage admin Nothing))
+    Showing <$> callOffChainView @Configuration contract "currentConfig" NoParam
+      @@== Showing (toRPC $ sConfiguration (defaultStorage (toL1Address admin) Nothing))
 
 test_proposalInfo :: TestTree
 test_proposalInfo =
@@ -35,19 +31,12 @@ test_proposalInfo =
     let uri = #proposal_uri :! URI "ipfs://proposal"
         choices = ["Zero", "One", "Two", "Three"]
     withSender holder do
-      call contract (Call @"Propose") (uri, #choices :! choices)
+      transfer contract $ calling (ep @"Propose") (uri, #choices :! choices)
     storage <- getStorage contract
     let proposals = sProposalsRPC storage
     proposal <- getBigMapValue proposals uri
-    Showing <$> callOffChainView contract "proposalInfo" (ViewParam uri)
-      @@== Showing proposal
-    res <- attempt $
+    Showing <$> callOffChainView @ProposalInfo contract "proposalInfo" (ViewParam uri)
+      @@== Showing (toRPCProposalInfo proposal)
+    expectCustomErrorNoArg #noSuchProposal $
       callOffChainView @ProposalInfo
         contract "proposalInfo" (ViewParam $ #proposal_uri :! URI "ipfs://nonexistent")
-    case res of
-      Left (WithCallStack _ err) -> case fromException err of
-        Just (CustomTestError txt)
-          | "Reached FAILWITH instruction with \"NoSuchProposal\"" `isInfixOf` txt -> pass
-        _ -> failure $
-          "Expected a noSuchProposal error, but got " <> fromString (displayException err)
-      Right _ -> failure "Expected a noSuchProposal error, but the call succeeded"

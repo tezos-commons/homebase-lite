@@ -7,8 +7,6 @@ module Test.Indigo.Contracts.HomebaseLite.PropertyTests
   ( hprop_main
   ) where
 
-import Lorentz (Address, toAddress)
-
 import Data.Default
 import Data.Map qualified as Map
 import Hedgehog (Property, forAll, property, withTests)
@@ -22,6 +20,7 @@ import Indigo.Contracts.FA2Sample qualified as FA2
 import Lorentz.Contracts.Spec.FA2Interface qualified as FA2
 import Morley.Michelson.Typed.Haskell.Value (bmMap)
 import Morley.Tezos.Core
+import Morley.Tezos.Address
 import Morley.Util.Named
 import Test.Cleveland
 
@@ -34,16 +33,16 @@ genericScenario
   -> (forall caps m. MonadEmulated caps m
       => ContractHandle Parameter Storage () -> m () -> m ())
   -> (forall caps m. MonadEmulated caps m
-      => Address
-      -> Address
+      => ImplicitAddress
+      -> ImplicitAddress
       -> ContractHandle Parameter Storage ()
       -> m ())
   -> Scenario PureM
 genericScenario tokenCount expectation f = scenarioEmulated do
   holder <- newAddress "holder"
-  let stor = FA2.mkStorage meta [((holder, FA2.TokenId 0), tokenCount)] []
+  let stor = FA2.mkStorage meta [((toAddress holder, FA2.TokenId 0), tokenCount)] []
       meta = FA2.mkTokenMetadata "g" "governance" "0"
-  fa2 <- originateSimple "FA2" stor (FA2.fa2Contract def)
+  fa2 <- originate "FA2" stor (FA2.fa2Contract def)
   (admin, contract) <- deployContractWithConf (Just FA2Config
     { fa2Addr = toAddress fa2
     , fa2TokenId = TokenId 0
@@ -115,16 +114,16 @@ hprop_main = withTests 500 $ property $ do
     genericScenario tokenCount expectation \holder admin contract -> do
       maintainer <- newAddress "maintainer"
       withSender admin do
-        call contract (Call @"Add_maintainers") [maintainer]
+        transfer contract $ calling (ep @"Add_maintainers") [toAddress maintainer]
       withSender maintainer do
-        call contract (Call @"Configure") conf
+        transfer contract $ calling (ep @"Configure") conf
       withSender holder do
-        call contract (Call @"Propose") (uri, #choices :! choices)
+        transfer contract $ calling (ep @"Propose") (uri, #choices :! choices)
       advanceTime $ sec (fromIntegralOverflowing @Natural delay)
       for_ votes \vote -> do
         voter <- newAddress auto
         withSender voter do
-          call contract (Call @"Vote") (uri, #choice_index :! vote)
+          (transfer contract $ calling (ep @"Vote") (uri, #choice_index :! vote))
             & if vote > maxChoice
               then expectCustomErrorNoArg #noSuchChoice
               else id
