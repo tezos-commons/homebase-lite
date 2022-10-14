@@ -146,4 +146,3 @@ tests:
     - o-clock
     - tasty
     - tasty-hedgehog
-    - text
