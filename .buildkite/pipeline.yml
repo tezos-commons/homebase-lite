@@ -27,7 +27,6 @@ steps:
     if: *not_scheduled_autodoc
     commands:
     - nix run -f ci.nix xrefcheck -c xrefcheck
-    soft_fail: true
     retry:
       automatic:
         limit: 1
