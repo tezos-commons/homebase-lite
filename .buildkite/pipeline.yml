@@ -26,7 +26,7 @@ steps:
   - label: xrefcheck
     if: *not_scheduled_autodoc
     commands:
-    - nix run -f ci.nix xrefcheck -c xrefcheck
+    - nix run -f ci.nix pkgs.xrefcheck -c xrefcheck
     retry:
       automatic:
         limit: 1
@@ -128,7 +128,7 @@ steps:
       else CONTRACT_DOC_STEP="contract-doc";
       fi
     - buildkite-agent artifact download documentation.md tmp/ --step "$$CONTRACT_DOC_STEP"
-    - nix run -f ci.nix xrefcheck -c xrefcheck --root tmp
+    - nix run -f ci.nix pkgs.xrefcheck -c xrefcheck --root tmp
 
   - label: autodoc upload
     if: *master_not_scheduled
