@@ -75,7 +75,6 @@ ghc-options:
   - -Wno-missing-local-signatures
   - -Wno-monomorphism-restriction
   - -Wno-implicit-prelude
-  - -Wno-unused-packages
 
 when:
   - condition: impl(ghc >= 8.10.0)
@@ -110,7 +109,6 @@ executables:
     dependencies:
       - aeson-pretty
       - bytestring
-      - constraints
       - fmt
       - homebase-lite
       - lorentz
