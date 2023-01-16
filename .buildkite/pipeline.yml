@@ -45,10 +45,10 @@ steps:
     - nix-build ci.nix -A packages.homebase-lite.tests.homebase-lite-test
     - ./result/bin/homebase-lite-test --cleveland-mode=disable-network
 
-  - label: test-local-chain-014
+  - label: test-local-chain-015
     if: *not_scheduled_autodoc
     env:
-      TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8733"
+      TASTY_CLEVELAND_NODE_ENDPOINT: "http://localhost:8734"
       # this key is defined in local-chain bootstrap accounts list in
       # https://github.com/serokell/aquarius-infra/blob/master/servers/albali/chain.nix
       CHAIN_TEST_MONEYBAG_SECRET_KEY: "unencrypted:edsk4JeHGnXM5nz2cyW9R5xTpM1Wk6ZgZF2j6k8h235akhSPbnEEnz"
@@ -65,11 +65,11 @@ steps:
       --no-out-link
       --argstr scenario './result/bin/homebase-lite-test --cleveland-mode=only-network')
 
-  - label: scheduled kathmandu test
+  - label: scheduled limanet test
     if: build.source == "schedule"
     depends_on: build
     env:
-      TASTY_CLEVELAND_NODE_ENDPOINT: "https://kathmandu.testnet.tezos.serokell.team"
+      TASTY_CLEVELAND_NODE_ENDPOINT: "https://lima.testnet.tezos.serokell.team"
       CHAIN_TEST_MONEYBAG_SECRET_KEY: "$TESTNET_MONEYBAG"
       CHAIN_TEST_MONEYBAG_PASSWORD: "$TESTNET_MONEYBAG_PASSWORD"
     commands: *network-test
