@@ -12,11 +12,11 @@ import Data.Type.Equality ((:~:)(Refl))
 import Unsafe.Coerce (unsafeCoerce)
 
 import Morley.Michelson.Optimizer (OptimizerConf, Rule(..), ocRuleset, orSimpleRule)
-import Morley.Michelson.Typed (Dict(Dict), Instr(..), T(TBool), Value, pattern (:#))
+import Morley.Michelson.Typed (Instr(..), T(TBool), Value, pattern (:#))
 import Morley.Util.Peano
-  (Decrement, Drop, IsLongerOrSameLength, IsLongerThan, Take, pattern S, pattern Z)
+  (Decrement, Drop, IsLongerOrSameLength, IsLongerThan, LazyTake, Take, pattern S, pattern Z)
 import Morley.Util.PeanoNatural (PeanoNatural(..), fromPeanoNatural)
-import Morley.Util.Type (KnownList, type (++))
+import Morley.Util.Type (type (++))
 
 optimize :: inp :-> out -> inp :-> out
 optimize = optimizeLorentzWithConf optimizerConf
@@ -76,9 +76,7 @@ optimizerConf = def {
         `orSimpleRule` notIf
         `orSimpleRule` dupDipDownstream
         `orSimpleRule` digDug
-        `orSimpleRule` redundantIf
         `orSimpleRule` nestedDip
-        `orSimpleRule` emptyDip
         `orSimpleRule` dropFrame
         `orSimpleRule` dugDipSwap
         `orSimpleRule` mergeDips
@@ -100,29 +98,16 @@ rollDip = Rule \case
   DIP x :# xs -> Just $ DIPN One x :# xs
   _ -> Nothing
 
-redundantIf :: Rule
-redundantIf = Rule \case
-  IF x y :# xs
-    | x == y
-    -> Just $ DROP :# x :# xs
-  _ -> Nothing
-
-emptyDip :: Rule
-emptyDip = Rule \case
-  DIPN _ Nop :# xs -> Just xs
-  _ -> Nothing
-
 nestedDip :: Rule
 nestedDip = Rule \case
   (DIPN (n :: PeanoNatural n) (DIPN One (x :: Instr s s')) :: Instr inp out) :# xs
     | Refl :: IsLongerOrSameLength inp ('S n) :~: 'True <- unsafeCoerce Refl
-    , Refl :: Take ('S n) inp ++ s :~: inp <- unsafeCoerce Refl
-    , Refl :: Take ('S n) inp ++ s' :~: out <- unsafeCoerce Refl
+    , Refl :: LazyTake ('S n) inp ++ s :~: inp <- unsafeCoerce Refl
+    , Refl :: LazyTake ('S n) inp ++ s' :~: out <- unsafeCoerce Refl
+    , Refl :: s :~: Drop ('S n) inp <- unsafeCoerce Refl
+    , Refl :: s' :~: Drop ('S n) out <- unsafeCoerce Refl
     -> Just $ DIPN (Succ n) x :# xs
   (DIPN One (DIPN (n :: PeanoNatural n) (x :: Instr s s')) :: Instr inp out) :# xs
-    | Refl :: IsLongerOrSameLength inp ('S n) :~: 'True <- unsafeCoerce Refl
-    , Refl :: Take ('S n) inp ++ s :~: inp <- unsafeCoerce Refl
-    , Refl :: Take ('S n) inp ++ s' :~: out <- unsafeCoerce Refl
     -> Just $ DIPN (Succ n) x :# xs
   _ -> Nothing
 
@@ -152,7 +137,6 @@ rollDrops = Rule \case
     -> Just $ DROPN (Succ n) :# xs
   (DROP :: Instr inp t) :# (DROPN (n :: PeanoNatural n) :: Instr t out) :# xs
     | Refl :: IsLongerOrSameLength inp ('S n) :~: 'True <- unsafeCoerce Refl
-    , Refl :: Drop ('S n) inp :~: out <- unsafeCoerce Refl
     -> Just $ DROPN (Succ n) :# xs
   _ -> Nothing
 
@@ -177,7 +161,7 @@ dupDipDownstream = Rule \case
     | fromPeanoNatural n <= fromPeanoNatural k
     , Refl :: t' :~: Take k inp ++ s' <- unsafeCoerce Refl
     , Refl :: IsLongerOrSameLength t' n :~: 'True <- unsafeCoerce Refl
-    , Refl :: Take (Decrement n) t' ++ (a ': Drop n t') :~: t' <- unsafeCoerce Refl
+    , Refl :: LazyTake (Decrement n) t' ++ (a ': Drop n t') :~: t' <- unsafeCoerce Refl
     , Refl :: out :~: a ': t' <- unsafeCoerce Refl
     -> Just $ (DIPN k x :: Instr inp t') :# DUPN n :# xs
   _ -> Nothing
@@ -194,7 +178,6 @@ dupDugDrop = Rule \case
 
 simpleSynonyms :: Rule
 simpleSynonyms = Rule \case
-  DUPN One :# xs -> Just $ DUP :# xs
   DIPN One x :# xs -> Just $ unsafeCoerce DIP x :# xs
   DROPN One :# xs -> Just $ unsafeCoerce DROP :# xs
   DUG One :# xs -> Just $ unsafeCoerce SWAP :# xs
@@ -206,8 +189,10 @@ pushDipDug = Rule \case
   (PUSH (a :: Value a) :: Instr inp t)
     :# DIPN (Succ x) (DROP :: Instr s1 s2)
     :# (DUG (y :: PeanoNatural n) :: Instr t1 out) :# xs
-    | Refl :: (Take n inp) ++ (d ': s2) :~: inp <- unsafeCoerce Refl
-    , Refl :: (Take n inp) ++ (a ': s2) :~: out <- unsafeCoerce Refl
+    | Refl :: (LazyTake n inp) ++ (d ': s2) :~: inp <- unsafeCoerce Refl
+    , Refl :: (LazyTake n inp) ++ (a ': s2) :~: out <- unsafeCoerce Refl
+    , Refl :: (d ': s2) :~: Drop n inp <- unsafeCoerce Refl
+    , Refl :: (a ': s2) :~: Drop n out <- unsafeCoerce Refl
     , Just Refl <- eqPeanoNat x y
     -> Just $ DIPN @n @inp @out @(d ': s2) @(a ': s2) y (DROP :# PUSH a) :# xs
   _ -> Nothing
@@ -229,12 +214,10 @@ dupDipDrop :: Rule
 dupDipDrop = Rule \case
   (DUPN (Succ (x :: PeanoNatural n)) :: Instr inp t)
     :# (DIPN (Succ (y :: PeanoNatural m)) DROP :: Instr t out) :# xs
-    | Refl :: out :~: (a ': Take n inp ++ Drop ('S n) inp) <- unsafeCoerce Refl
+    | Refl :: out :~: a ': LazyTake n inp ++ Drop ('S n) inp <- unsafeCoerce Refl
+    , Refl :: inp :~: LazyTake n (Drop ('S 'Z) out) ++ a ': Drop ('S n) out <- unsafeCoerce Refl
     , Refl :: IsLongerThan inp n :~: 'True <- unsafeCoerce Refl
     , Just Refl <- eqPeanoNat x y
-    , Dict :: Dict (KnownList inp) <- unsafeCoerce (Dict :: Dict (KnownList '[]))
-    -- Pulling KnownList from the aether here is "safe" because the dict is only
-    -- used in a compile-time proof.
     -> Just $ DIG x :# xs
   _ -> Nothing
 
@@ -246,11 +229,13 @@ dugDipSwap = Rule \case
     | fromPeanoNatural n < fromPeanoNatural m
     , Refl :: IsLongerOrSameLength inp m :~: 'True <- unsafeCoerce Refl
     , Refl :: IsLongerThan out n :~: 'True <- unsafeCoerce Refl
-    , Refl :: Take m (b : Drop ('S 'Z) inp) ++ s' :~: d <- unsafeCoerce Refl
-    , Refl :: d :~: a : Drop ('S 'Z) d <- unsafeCoerce Refl
-    , Refl :: Take n (Drop ('S 'Z) d) ++ (a : Drop ('S n) d) :~: out <- unsafeCoerce Refl
+    , Refl :: LazyTake m (b : Drop ('S 'Z) inp) ++ s' :~: d <- unsafeCoerce Refl
+    , Refl :: s' :~: Drop m d <- unsafeCoerce Refl
+    , Refl :: LazyTake n (Drop ('S 'Z) d) ++ (a : Drop ('S n) d) :~: out <- unsafeCoerce Refl
+    , Refl :: a : LazyTake n out ++ Drop ('S n) out :~: d <- unsafeCoerce Refl
     , Refl :: inp :~: b ': Drop ('S 'Z) inp <- unsafeCoerce Refl
-    , Refl :: Take m (b : Drop ('S 'Z) inp) ++ s :~: b : Drop ('S 'Z) inp <- unsafeCoerce Refl
+    , Refl :: LazyTake m (b : Drop ('S 'Z) inp) ++ s :~: b : Drop ('S 'Z) inp <- unsafeCoerce Refl
+    , Refl :: s :~: Drop m (b : Drop ('S 'Z) inp) <- unsafeCoerce Refl
     -> Just $ DIPN m i :# DUG n :# xs
   _ -> Nothing
 
@@ -260,7 +245,6 @@ mergeDips = Rule \case
     :# (DIPN (m :: PeanoNatural m) (j :: Instr s s') :: Instr t out)
     :# xs
     | Just Refl <- eqPeanoNat n m
-    , Refl :: p' :~: s <- unsafeCoerce Refl
-    , Refl :: Take n inp ++ s' :~: out <- unsafeCoerce Refl
+    , Refl :: LazyTake n inp ++ s' :~: out <- unsafeCoerce Refl
     -> Just $ DIPN n (i :# j) :# xs
   _ -> Nothing
