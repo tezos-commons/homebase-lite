@@ -8,13 +8,12 @@ module Main
   ) where
 
 import Lorentz
-  (NiceStorage, attachDocCommons, buildMarkdownDoc, def, niceStorageEvi, printLorentzValue,
-  toAddress, toMichelsonContract, toVal, zeroMutez)
+  (attachDocCommons, buildMarkdownDoc, def, printLorentzValue, toAddress, toMichelsonContract,
+  toVal, zeroMutez)
 
 import Data.Aeson.Encode.Pretty (encodePretty, encodePrettyToTextBuilder)
 import Data.ByteString.Lazy.Char8 qualified as BS (putStrLn)
 import Data.Char (isUpper, toLower)
-import Data.Constraint ((\\))
 import Data.Text.Lazy.Builder (toLazyText)
 import Data.Text.Lazy.IO.Utf8 qualified as Utf8 (writeFile)
 import Fmt (nameF, pretty)
@@ -25,9 +24,10 @@ import Options.Applicative.Help.Pretty (Doc, linebreak)
 import System.Environment (withProgName)
 
 import Morley.CLI (addressOption, onelineOption)
-import Morley.Client (clientConfigParser, lOriginateContract, mkMorleyClientEnv, runMorleyClientM)
+import Morley.Client
+  (AliasBehavior(..), clientConfigParser, lOriginateContract, mkMorleyClientEnv, runMorleyClientM)
 import Morley.Client.RPC.Types
-import Morley.Micheline (Expression, toExpression)
+import Morley.Micheline (toExpression)
 import Morley.Michelson.Analyzer (analyze)
 import Morley.Michelson.Printer (printTypedContract)
 import Morley.Michelson.Typed (cCode, unContractCode)
@@ -120,8 +120,8 @@ instance HasCLReader L1Address where
     addrStr <- Opt.str
     case parseAddress addrStr of
       Right (MkAddress (addr :: KindedAddress kind')) -> case addr of
-        ImplicitAddress{} -> pure $ MkConstrainedAddress addr
-        ContractAddress{} -> pure $ MkConstrainedAddress addr
+        ImplicitAddress{} -> pure $ Constrained addr
+        ContractAddress{} -> pure $ Constrained addr
         TxRollupAddress{} ->
           Opt.readerError $ pretty $ nameF "Unexpected address kind" $
             "expected contract or implicit address, but got transaction rollup"
@@ -161,7 +161,7 @@ argParser = Opt.subparser $ mconcat $
       (<*> michelineOption) $
       storageParser <&> \storage useMicheline ->
         if useMicheline
-        then BS.putStrLn $ encodePretty $ toExpressionHelper storage
+        then BS.putStrLn $ encodePretty $ toExpression $ toVal storage
         else putStrLn $ printLorentzValue True storage
 
     originateSubCmd = mkCommandParser "originate" "Originate the contract. \
@@ -173,11 +173,12 @@ argParser = Opt.subparser $ mconcat $
         env <- mkMorleyClientEnv cconf
         (_ , addr) <- runMorleyClientM @(OperationHash, ContractAddress) env $ do
           case sAdmin of
-            MkConstrainedAddress a ->
+            Constrained a ->
               case isImplicitAddress a of
                 Just Refl -> do
-                  lOriginateContract True (ContractAlias name) (AddressResolved a) zeroMutez
-                    lorentzContract storage Nothing
+                  lOriginateContract OverwriteDuplicateAlias (ContractAlias name)
+                    (AddressResolved a) zeroMutez
+                    lorentzContract storage Nothing Nothing
                 Nothing -> error "Admin needs to be an implicit address!"
         putStrLn $ "Originated " <> name <> " as " <> pretty addr
 
@@ -216,9 +217,6 @@ argParser = Opt.subparser $ mconcat $
       Nothing -> Utf8.writeFile defName
       Just "-" -> putStrLn
       Just output -> Utf8.writeFile output
-
-    toExpressionHelper :: forall st'. NiceStorage st' => st' -> Expression
-    toExpressionHelper = toExpression . toVal \\ niceStorageEvi @st'
 
 main :: IO ()
 main = withUtf8 $ withProgName "homebase-lite" $ do

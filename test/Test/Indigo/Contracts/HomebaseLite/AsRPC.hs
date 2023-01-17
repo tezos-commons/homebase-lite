@@ -12,6 +12,9 @@ module Test.Indigo.Contracts.HomebaseLite.AsRPC
   , toRPCProposalInfo
   ) where
 
+import Lorentz (HasAnnotation)
+
+import Morley.AsRPC (deriveRPCWithOptions, droRecursive)
 import Test.Cleveland
 
 import Indigo.Contracts.HomebaseLite
@@ -20,8 +23,9 @@ import Indigo.Contracts.HomebaseLite.Types
 deriveRPC "Seconds"
 deriveRPC "Configuration"
 deriveRPC "TokenId"
-deriveRPC "FA2Config"
-deriveRPC "Storage"
+-- TODO [morley#922]: Just use deriveRPC here.
+deriveRPCWithOptions "FA2Config" def{droRecursive=False}
+deriveRPCWithOptions "Storage" def{droRecursive=False}
 deriveRPC "ProposalInfo"
 
 deriving stock instance Show SecondsRPC
