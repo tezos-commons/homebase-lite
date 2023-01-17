@@ -1,6 +1,6 @@
 # Homebase Lite
 
-**Code revision:** [6e54814](https://github.com/tezos-commons/homebase-lite/commit/6e54814c822aa43a25bab5024d4177fd6f9f5d9a) *(Fri Dec 2 10:21:12 2022 +0100)*
+**Code revision:** [f30927c](https://github.com/tezos-commons/homebase-lite/commit/f30927c2aa89fa2e14a389d9ef1df954346ecf18) *(Tue Jan 17 21:15:37 2023 +0300)*
 
 
 
@@ -74,11 +74,11 @@ This smart contract is developed in Haskell using the [Morley framework](https:/
 
 There are multiple ways to interact with this contract:
 
-* Use this contract in your Haskell application, thus all operation submissions should be handled separately, e.g. via calling `tezos-client`, which will communicate with the `tezos-node`. In order to be able to call `tezos-client` you'll need to be able to construct Michelson values from Haskell.
+* Use this contract in your Haskell application, thus all operation submissions should be handled separately, e.g. via calling `octez-client`, which will communicate with the `octez-node`. In order to be able to call `octez-client` you'll need to be able to construct Michelson values from Haskell.
 
-  The easiest way to do that is to serialize Haskell value using `lPackValue` function from [`Lorentz.Pack`](https://gitlab.com/morley-framework/morley/-/blob/2441e26bebd22ac4b30948e8facbb698d3b25c6d/code/lorentz/src/Lorentz/Pack.hs) module, encode resulting bytestring to hexadecimal representation using `encodeHex` function. Resulting hexadecimal encoded bytes sequence can be decoded back to Michelson value via `tezos-client unpack michelson data`.
+  The easiest way to do that is to serialize Haskell value using `lPackValue` function from [`Lorentz.Pack`](https://gitlab.com/morley-framework/morley/-/blob/2441e26bebd22ac4b30948e8facbb698d3b25c6d/code/lorentz/src/Lorentz/Pack.hs) module, encode resulting bytestring to hexadecimal representation using `encodeHex` function. Resulting hexadecimal encoded bytes sequence can be decoded back to Michelson value via `octez-client unpack michelson data`.
 
-  Reverse conversion from Michelson value to the Haskell value can be done by serializing Michelson value using `tezos-client hash data` command, resulting `Raw packed data` should be decoded from the hexadecimal representation using `decodeHex` and deserialized to the Haskell value via `lUnpackValue` function from [`Lorentz.Pack`](https://gitlab.com/morley-framework/morley/-/blob/2441e26bebd22ac4b30948e8facbb698d3b25c6d/code/lorentz/src/Lorentz/Pack.hs).
+  Reverse conversion from Michelson value to the Haskell value can be done by serializing Michelson value using `octez-client hash data` command, resulting `Raw packed data` should be decoded from the hexadecimal representation using `decodeHex` and deserialized to the Haskell value via `lUnpackValue` function from [`Lorentz.Pack`](https://gitlab.com/morley-framework/morley/-/blob/2441e26bebd22ac4b30948e8facbb698d3b25c6d/code/lorentz/src/Lorentz/Pack.hs).
 
 * Construct values for this contract directly on Michelson level using types provided in the documentation.
 
