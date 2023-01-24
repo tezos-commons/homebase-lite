@@ -9,24 +9,18 @@ steps:
     if: &not_scheduled_autodoc
       build.branch != "autodoc/master" && build.branch != "master" && build.source != "schedule"
     commands:
-    - nix run -f ci.nix pkgs.hlint -c
+    - nix shell .#haskellPackages.hlint -c
         ./scripts/lint.sh
 
-  - label: reuse lint
+  - label: check
     if: *not_scheduled_autodoc
     commands:
-    - nix run -f ci.nix pkgs.reuse -c
-        reuse lint
-
-  - label: check trailing whitespace
-    if: *not_scheduled_autodoc
-    commands:
-    - .buildkite/check-trailing-whitespace.sh
+    - nix flake check -L
 
   - label: xrefcheck
     if: *not_scheduled_autodoc
     commands:
-    - nix run -f ci.nix pkgs.xrefcheck -c xrefcheck
+    - nix shell .#xrefcheck --impure -c xrefcheck
     retry:
       automatic:
         limit: 1
@@ -35,14 +29,14 @@ steps:
     if: *not_scheduled_autodoc
     key: build
     commands:
-    - nix-build ci.nix -A all-components
+    - nix build -L .#all-components
 
   - label: test
     if: *not_scheduled_autodoc
     key: test
     depends_on: build
     commands:
-    - nix-build ci.nix -A packages.homebase-lite.tests.homebase-lite-test
+    - nix build -L .#homebase-lite:test:homebase-lite-test
     - ./result/bin/homebase-lite-test --cleveland-mode=disable-network
 
   - label: test-local-chain-015
@@ -56,8 +50,8 @@ steps:
       - build
       - test
     commands: &network-test
-    - nix-build ci.nix -A packages.homebase-lite.tests.homebase-lite-test
-    - $(nix-build ci.nix -A run-chain-tests
+    - nix build -L .#homebase-lite:test:homebase-lite-test
+    - $(nix-build . -A utils.run-chain-tests
       --argstr refill-balance 90
       --argstr node-endpoint "$$TASTY_CLEVELAND_NODE_ENDPOINT"
       --argstr step-moneybag "$$CHAIN_TEST_MONEYBAG_SECRET_KEY"
@@ -82,21 +76,21 @@ steps:
     if: *not_scheduled_autodoc
     depends_on: build
     commands:
-    - nix-build ci.nix -A weeder-script
+    - nix build -L .#weeder-script
     - ./result
 
   - label: haddock
     if: *not_scheduled_autodoc
     depends_on: build
     commands:
-    - nix-build ci.nix -A haddock --no-out-link
+    - nix build -L .#haddock --no-link
 
   - label: contract-doc
     if: *not_scheduled_autodoc
     key: contract-doc
     depends_on: build
     commands:
-    - nix-build ci.nix -A contract-doc-dev
+    - nix build -L .#contract-doc-dev
     - ln -s ./result/documentation.md documentation.md
     artifact_paths:
     - documentation.md
@@ -108,7 +102,7 @@ steps:
       build.branch == "master" && build.source != "schedule"
     depends_on: build
     commands:
-    - nix-build ci.nix -A contract-doc-release
+    - nix-build . -A utils.contract-doc-release
         --argstr sha "$(git rev-parse HEAD)"
         --argstr date "$(git log HEAD -1 --format=%cd)"
     - ln -s ./result/documentation.md documentation.md
@@ -128,7 +122,7 @@ steps:
       else CONTRACT_DOC_STEP="contract-doc";
       fi
     - buildkite-agent artifact download documentation.md tmp/ --step "$$CONTRACT_DOC_STEP"
-    - nix run -f ci.nix pkgs.xrefcheck -c xrefcheck --root tmp
+    - nix shell .#xrefcheck --impure -c xrefcheck --root tmp
 
   - label: autodoc upload
     if: *master_not_scheduled
@@ -144,7 +138,7 @@ steps:
     if: build.branch != "autodoc/master" && build.source != "schedule"
     key: packaging
     commands:
-    - nix-build ci.nix -A build-release -o homebase-lite-static
+    - nix-build . -A utils.build-release -o homebase-lite-static
         --argstr sha "$(git rev-parse HEAD)"
         --argstr date "$(git log HEAD -1 --format=%cd)"
     artifact_paths:
@@ -159,7 +153,7 @@ steps:
     - buildkite-agent artifact download documentation.md assets/ --step "contract-doc (master)"
     - cp homebase-lite-static/bin/homebase-lite assets/
     # delete existing auto-release if present
-    - nix run -f ci.nix pkgs.gitAndTools.gh -c gh release delete auto-release --yes || true
-    - nix run -f ci.nix pkgs.git -c git fetch && git tag -f auto-release && git push --force --tags
-    - nix run -f ci.nix pkgs.gitAndTools.gh -c gh release create --prerelease auto-release --title auto-release --notes ""
-    - nix run -f ci.nix pkgs.gitAndTools.gh -c gh release upload auto-release assets/*
+    - nix shell .#gitAndTools.gh -c gh release delete auto-release --yes || true
+    - nix shell .#git -c git fetch && git tag -f auto-release && git push --force --tags
+    - nix shell .#gitAndTools.gh -c gh release create --prerelease auto-release --title auto-release --notes ""
+    - nix shell .#gitAndTools.gh -c gh release upload auto-release assets/*
