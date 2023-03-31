@@ -16,7 +16,7 @@ import Data.ByteString.Lazy.Char8 qualified as BS (putStrLn)
 import Data.Char (isUpper, toLower)
 import Data.Text.Lazy.Builder (toLazyText)
 import Data.Text.Lazy.IO.Utf8 qualified as Utf8 (writeFile)
-import Fmt (nameF, pretty)
+import Fmt (pretty)
 import GHC.TypeLits (symbolVal)
 import Main.Utf8 (withUtf8)
 import Options.Applicative qualified as Opt
@@ -25,7 +25,8 @@ import System.Environment (withProgName)
 
 import Morley.CLI (addressOption, onelineOption)
 import Morley.Client
-  (AliasBehavior(..), clientConfigParser, lOriginateContract, mkMorleyClientEnv, runMorleyClientM)
+  (AliasBehavior(..), clientConfigParser, lOriginateContract, mkMorleyClientEnv,
+  resolveAddressWithAlias, runMorleyClientM)
 import Morley.Client.RPC.Types
 import Morley.Micheline (toExpression)
 import Morley.Michelson.Analyzer (analyze)
@@ -34,7 +35,7 @@ import Morley.Michelson.Typed (cCode, unContractCode)
 import Morley.Tezos.Address
 import Morley.Tezos.Address.Alias (AddressOrAlias(..), Alias(..))
 import Morley.Tezos.Address.Kinds
-import Morley.Util.CLI (HasCLReader(..), mkCLOptionParser)
+import Morley.Util.CLI (mkCLOptionParser)
 import Morley.Util.Named (Name, pattern (:!), type (:!))
 import Morley.Util.Typeable
 
@@ -114,19 +115,6 @@ storageParser = initialStorage
     minimumBalanceParser = naturalParser id #minimumBalance 0
       "The minimum amount of governance tokens needed to submit a new proposal"
 
-instance HasCLReader L1Address where
-  getMetavar = "CONTRACT OR IMPLICIT ADDRESS"
-  getReader = do
-    addrStr <- Opt.str
-    case parseAddress addrStr of
-      Right (MkAddress (addr :: KindedAddress kind')) -> case addr of
-        ImplicitAddress{} -> pure $ Constrained addr
-        ContractAddress{} -> pure $ Constrained addr
-        TxRollupAddress{} ->
-          Opt.readerError $ pretty $ nameF "Unexpected address kind" $
-            "expected contract or implicit address, but got transaction rollup"
-      Left err -> Opt.readerError $ pretty err
-
 argParser :: Opt.Parser (IO ())
 argParser = Opt.subparser $ mconcat $
   [ printSubCmd
@@ -176,8 +164,9 @@ argParser = Opt.subparser $ mconcat $
             Constrained a ->
               case isImplicitAddress a of
                 Just Refl -> do
+                  a' <- resolveAddressWithAlias (AddressResolved a)
                   lOriginateContract OverwriteDuplicateAlias (ContractAlias name)
-                    (AddressResolved a) zeroMutez
+                    a' zeroMutez
                     lorentzContract storage Nothing Nothing
                 Nothing -> error "Admin needs to be an implicit address!"
         putStrLn $ "Originated " <> name <> " as " <> pretty addr

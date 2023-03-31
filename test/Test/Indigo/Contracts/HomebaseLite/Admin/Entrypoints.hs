@@ -140,8 +140,12 @@ test_removeMaintainers =
       getBigMapValueMaybe bmId maint @@== Nothing
   ]
   where
-    prepare :: MonadCleveland caps m => m (ImplicitAddress, ContractHandle Parameter Storage (),
-                       [ImplicitAddress])
+    prepare
+      :: MonadCleveland caps m
+      => m ( ImplicitAddressWithAlias
+           , ContractHandle Parameter Storage ()
+           , [ImplicitAddressWithAlias]
+           )
     prepare = do
       (admin, contract) <- deployContract
       newMaintainers <- traverse newFreshAddress $ replicate 3 auto

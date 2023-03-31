@@ -1,9 +1,6 @@
 -- SPDX-FileCopyrightText: 2022 Tezos Commons
 -- SPDX-License-Identifier: LicenseRef-MIT-TC
 
-{-# OPTIONS_GHC -Wno-orphans #-}
-{-# LANGUAGE RebindableSyntax #-}
-
 module Indigo.Contracts.HomebaseLite.Impl.Contract
   ( lorentzContract
   ) where
@@ -41,4 +38,10 @@ indigoContract param = defContract $ docGroup "Homebase Lite" do
     )
 
 lorentzContract :: L.Contract Parameter Storage ()
-lorentzContract = defaultContract $ optimize $ unContractCode $ compileIndigoContract indigoContract
+lorentzContract = mkContractWith compilationOptions
+  $ ContractCode . optimize . unContractCode
+  $ compileIndigoContract indigoContract
+  where
+    -- Note: we run customized optimizer passes manually for more control of
+    -- what and when we run, hence automatic optimization here is disabled.
+    compilationOptions = defaultCompilationOptions { coOptimizerConf = Nothing }

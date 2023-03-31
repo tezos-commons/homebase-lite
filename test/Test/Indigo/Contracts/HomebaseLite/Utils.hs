@@ -34,20 +34,20 @@ deriving newtype instance Num Seconds
 
 deployContract
   :: MonadCleveland caps m
-  => m (ImplicitAddress, ContractHandle Parameter Storage ())
+  => m (ImplicitAddressWithAlias, ContractHandle Parameter Storage ())
 deployContract = deployContract' id
 
 deployContract'
   :: MonadCleveland caps m
   => (Storage -> Storage)
-  -> m (ImplicitAddress, ContractHandle Parameter Storage ())
+  -> m (ImplicitAddressWithAlias, ContractHandle Parameter Storage ())
 deployContract' = deployContractWithConf Nothing
 
 deployContractWithConf
   :: MonadCleveland caps m
   => Maybe FA2Config
   -> (Storage -> Storage)
-  -> m (ImplicitAddress, ContractHandle Parameter Storage ())
+  -> m (ImplicitAddressWithAlias, ContractHandle Parameter Storage ())
 deployContractWithConf fa2conf modStor = do
   admin <- newAddress "admin"
   let stor = modStor $ defaultStorage (toL1Address admin) fa2conf
@@ -73,7 +73,11 @@ deriving stock instance Eq Seconds
 deriving stock instance Eq Configuration
 deriving stock instance Eq ProposalInfo
 
-deployWithFA2 :: MonadCleveland caps m => m (ImplicitAddress, ImplicitAddress, ContractHandle Parameter Storage ())
+deployWithFA2
+  :: MonadCleveland caps m
+  => m ( ImplicitAddressWithAlias
+       , ImplicitAddressWithAlias
+       , ContractHandle Parameter Storage ())
 deployWithFA2 = do
   holder <- newAddress "holder"
   let stor = FA2.mkStorage meta [((toAddress holder, FA2.TokenId 0), 100)] []
