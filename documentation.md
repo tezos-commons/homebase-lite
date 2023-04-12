@@ -1,6 +1,6 @@
 # Homebase Lite
 
-**Code revision:** [5917740](https://github.com/tezos-commons/homebase-lite/commit/59177409a8e41a0c02fe41cc682f3bc1a390a3e6) *(Tue Feb 7 12:08:08 2023 +0000)*
+**Code revision:** [a76c805](https://github.com/tezos-commons/homebase-lite/commit/a76c8059d0ed632ec431c3ab4064aa6d1710be9e) *(Wed Apr 12 21:30:45 2023 +0300)*
 
 
 
@@ -99,7 +99,7 @@ Contract storage.
   * ***adminCandidate*** :[`Address`](#types-Address)
   * ***maintainers*** :[`BigMap`](#types-BigMap) [`Address`](#types-Address) [`()`](#types-lparenrparen)
   * ***configuration*** :[`Configuration`](#types-Configuration)
-  * ***FA2Config*** :[`FA2Config`](#types-FA2Config)
+  * ***fa2Config*** :[`FA2Config`](#types-FA2Config)
   * ***proposals*** :[`BigMap`](#types-BigMap) (***proposal_uri*** : [`URI`](#types-URI)) [`ProposalInfo`](#types-ProposalInfo)
   * ***votes*** :[`BigMap`](#types-BigMap) (***proposal_uri*** : [`URI`](#types-URI), ***voter_address*** : [`Address`](#types-Address)) (***vote_choice*** : [`Natural`](#types-Natural))
   * ***metadata*** :[`BigMap`](#types-BigMap) [`Text`](#types-Text) [`ByteString`](#types-ByteString)
@@ -255,7 +255,7 @@ The sender must have a `maintainer` role.
 **Argument:** 
   + **In Haskell:** [`Configuration`](#types-Configuration)
   + **In Michelson:** `(pair (pair nat nat) nat nat)`
-    + **Example:** <span id="example-id">`{ Pair 0 0; 0; 0 }`</span>
+    + **Example:** <span id="example-id">`Pair (Pair 0 0) (Pair 0 0)`</span>
 
 <p>
 <details>
@@ -395,8 +395,6 @@ less than `minimum_balance`
 
 Unit primitive.
 
-**Structure:** ()
-
 **Final Michelson representation:** `unit`
 
 
@@ -440,7 +438,7 @@ Describes a request for an owner's balance
 
 **Structure:** 
   * ***owner*** :[`Address`](#types-Address)
-  * ***tokenId*** :[`TokenId`](#types-TokenId)
+  * ***token_id*** :[`TokenId`](#types-TokenId)
 
 **Final Michelson representation:** `pair address nat`
 
