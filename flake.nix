@@ -8,7 +8,7 @@
 
   inputs.morley-infra.url = "gitlab:morley-framework/morley-infra";
 
-  outputs = inputs@{ self, flake-utils, haskell-nix, morley-infra, ... }:
+  outputs = inputs@{ self, flake-utils, morley-infra, ... }:
     (flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         pkgs = morley-infra.legacyPackages.${system};

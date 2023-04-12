@@ -20,7 +20,6 @@ import Indigo.Contracts.FA2Sample qualified as FA2
 import Lorentz.Contracts.Spec.FA2Interface qualified as FA2
 import Morley.Michelson.Typed.Haskell.Value (bmMap)
 import Morley.Tezos.Core
-import Morley.Tezos.Address
 import Morley.Util.Named
 import Test.Cleveland
 
@@ -33,8 +32,8 @@ genericScenario
   -> (forall caps m. MonadEmulated caps m
       => ContractHandle Parameter Storage () -> m () -> m ())
   -> (forall caps m. MonadEmulated caps m
-      => ImplicitAddress
-      -> ImplicitAddress
+      => ImplicitAddressWithAlias
+      -> ImplicitAddressWithAlias
       -> ContractHandle Parameter Storage ()
       -> m ())
   -> Scenario PureM
