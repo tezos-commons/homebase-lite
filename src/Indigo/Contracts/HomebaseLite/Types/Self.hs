@@ -14,12 +14,9 @@ module Indigo.Contracts.HomebaseLite.Types.Self
 
 import Indigo hiding ((<>))
 
-import Data.Char (isLower, isUpper, toLower)
-import Data.Text qualified as T
-
-import Lorentz.Annotation (AnnOptions(..), annOptions)
 import Lorentz.Contracts.Spec.FA2Interface (BalanceResponseItem, TokenId)
 import Lorentz.Contracts.Spec.TZIP16Interface (MetadataMap)
+import Morley.Michelson.Typed.Haskell.Doc (FieldCamelCase)
 
 data Parameter
   = Set_admin Address
@@ -48,10 +45,8 @@ data Configuration = Configuration
   , cMinimumBalance :: Natural
   }
   deriving stock (Generic, Show)
-  deriving anyclass (IsoValue)
-
-instance HasAnnotation Configuration where
-  annOptions = myAnnOptions
+  deriving anyclass (IsoValue, HasAnnotation)
+  deriving TypeHasFieldNamingStrategy via FieldCamelCase
 
 [typeDoc| Configuration "Options defining the behaviour and life-cycle of proposals."|]
 
@@ -63,10 +58,8 @@ data ProposalInfo = ProposalInfo
   , piChoices :: [MText]
   }
   deriving stock (Generic, Show)
-  deriving anyclass (IsoValue)
-
-instance HasAnnotation ProposalInfo where
-  annOptions = myAnnOptions
+  deriving anyclass (IsoValue, HasAnnotation)
+  deriving TypeHasFieldNamingStrategy via FieldCamelCase
 
 [typeDoc| ProposalInfo "Information defining a proposal."|]
 
@@ -88,10 +81,8 @@ data Storage = Storage
   , sMetadata :: MetadataMap
   }
   deriving stock (Generic, Show)
-  deriving anyclass (IsoValue)
-
-instance HasAnnotation Storage where
-  annOptions = myAnnOptions
+  deriving anyclass (IsoValue, HasAnnotation)
+  deriving TypeHasFieldNamingStrategy via FieldCamelCase
 
 [typeDoc| Storage "Contract storage."|]
 
@@ -113,23 +104,3 @@ data MetadataConfig = MetadataConfig
 
 instance Default MetadataConfig where
   def = MetadataConfig "Homebase-Lite" "Offchain, decentralized voting system."
-
-myAnnOptions :: AnnOptions
-myAnnOptions = AnnOptions stripPrefix
-
--- this is cloned from "Morley.Michelson.Typed.Haskell.Doc"
--- [TODO: morley#759]: Remove this when 'dropPrefixThen' behaves the same, or this whole
--- manual tweaking becomes unnecessary.
-stripPrefix :: Text -> Text
-stripPrefix fieldName =
-  case T.uncons $ T.dropWhile isLower fieldName of
-    Nothing -> error $ "Field '" <> fieldName <> "' has no prefix"
-    Just (c, cs) ->
-      -- For fields like @ciUSPosition@ we should not lead the first letter
-      -- to lower case like @uSPosition@.
-      let isAbbreviation = case T.uncons cs of
-            Just (c2, _)
-              | isUpper c2 -> True
-              | otherwise -> False
-            Nothing -> False
-      in T.cons (if isAbbreviation then c else toLower c) cs
