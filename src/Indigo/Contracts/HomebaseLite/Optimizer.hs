@@ -13,23 +13,12 @@ import Data.Type.Equality ((:~:)(Refl))
 import Unsafe.Coerce (unsafeCoerce)
 
 import Morley.Michelson.Optimizer hiding (optimize)
+import Morley.Michelson.Optimizer.Utils (pattern (:#))
 import Morley.Michelson.Typed (Instr(..), Value)
 import Morley.Util.Peano
-  (Decrement, Drop, IsLongerOrSameLength, IsLongerThan, LazyTake, Tail, Take, pattern S, pattern Z)
+  (Decrement, Drop, IsLongerOrSameLength, IsLongerThan, LazyTake, Take, pattern S, pattern Z)
 import Morley.Util.PeanoNatural (PeanoNatural(..), eqPeanoNat, fromPeanoNatural)
 import Morley.Util.Type (type (++))
-
-pattern (:#) :: Instr inp b -> Instr b out -> Instr inp out
-pattern l :# r <- (maybeSeq -> Seq l r)
-  where l :# Nop = l
-        Nop :# r = r
-        l :# r = Seq l r
-infixr 8 :#
-
-maybeSeq :: Instr inp out -> Instr inp out
-maybeSeq = \case
-  x@Seq{} -> x
-  x -> Seq x Nop
 
 optimize :: inp :-> out -> inp :-> out
 optimize = fixpoint $ optimizeLorentzWithConf optimizerConf
@@ -45,8 +34,6 @@ optimize = fixpoint $ optimizeLorentzWithConf optimizerConf
 optimizerConf :: OptimizerConf
 optimizerConf = def
   { ocRuleset = defaultRules
-    & alterRulesAtPrio (dupDugDrop :) (OptimizationStageMain 0)
-    & alterRulesAtPrio (dipSwapDrop :) (OptimizationStageRollAdjacent (-1))
     & alterRulesAtPrio (aggRules <>) (OptimizationStageRollAdjacent 1)
   }
   where
@@ -75,12 +62,6 @@ dupDipDownstream = Rule go
         , Refl :: out :~: a ': t' <- unsafeCoerce Refl
         -> Just $ (DIPN k x :: Instr inp t') :# DUPN n :# xs
       _ -> Nothing
-
-dupDugDrop :: Rule
-dupDugDrop = Rule \case
-  DUP :# (DUG (Succ m) :: Instr inp out) :# DROP :# xs
-    -> Just $ DUG @_ @(Tail inp) m :# xs
-  _ -> Nothing
 
 pushDipDug :: Rule
 pushDipDug = Rule \case
@@ -122,9 +103,4 @@ dugDipSwap = Rule \case
     , Refl :: LazyTake m (b : Drop ('S 'Z) inp) ++ s :~: b : Drop ('S 'Z) inp <- unsafeCoerce Refl
     , Refl :: s :~: Drop m (b : Drop ('S 'Z) inp) <- unsafeCoerce Refl
     -> Just $ DIPN m i :# DUG n :# xs
-  _ -> Nothing
-
-dipSwapDrop :: Rule
-dipSwapDrop = Rule \case
-  DIP (SWAP :# DROP) -> Just $ DIPN Two DROP
   _ -> Nothing
