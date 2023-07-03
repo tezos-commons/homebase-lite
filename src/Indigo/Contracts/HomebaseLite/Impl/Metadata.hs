@@ -9,12 +9,12 @@ module Indigo.Contracts.HomebaseLite.Impl.Metadata
   , gitRev
   ) where
 
+import Fmt (fmt)
 import Indigo hiding (cast, description, name, (<>))
 import Lorentz qualified as L
 
 import Data.Aeson (encode)
 import Data.ByteString.Lazy qualified as BS
-import Data.Text.Internal.Builder (toLazyText)
 import Data.Typeable (cast)
 
 import Lorentz.Contracts.Spec.TZIP16Interface qualified as TZ16
@@ -57,7 +57,7 @@ collectContractErrors =
       TZ16.EStatic TZ16.StaticError
         { seError = toExpression . toVal . unsafe . mkMText $ errorDocName @e
         , seExpansion = toExpression
-          . toVal . unsafe . mkMText . toText . toLazyText $ errorDocMdCause @e
+          . toVal . unsafe . mkMText . fmt $ errorDocMdCause @e
         , seLanguages = ["en-US"]
         }
 
@@ -80,7 +80,7 @@ proposalInfoView = TZ16.View
   }
 
 versionString :: Text
-versionString = toText $ toLazyText $ docItemToMarkdown (HeaderLevel 0) gitRev
+versionString = fmt $ docItemToMarkdown (HeaderLevel 0) gitRev
 
 gitRev :: DGitRevision
 gitRev = $mkDGitRevision $ GitRepoSettings ("https://github.com/tezos-commons/homebase-lite/commit/" <>)
