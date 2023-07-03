@@ -1,6 +1,6 @@
 # Homebase Lite
 
-**Code revision:** [a76c805](https://github.com/tezos-commons/homebase-lite/commit/a76c8059d0ed632ec431c3ab4064aa6d1710be9e) *(Wed Apr 12 21:30:45 2023 +0300)*
+**Code revision:** [64e4deb](https://github.com/tezos-commons/homebase-lite/commit/64e4deba018e0159c9451bd6cb50f853663c81f7) *(Mon Jul 3 20:12:36 2023 +0300)*
 
 
 
@@ -191,7 +191,7 @@ the input list, this call is a no-op.
 
 **Argument:** 
   + **In Haskell:** [`List`](#types-List) [`Address`](#types-Address)
-  + **In Michelson:** `(list address)`
+  + **In Michelson:** `list address`
     + **Example:** <span id="example-id">`{ "KT1AEseqMV6fk2vtvQCVyA7ZCaxv7cpxtXdB" }`</span>
 
 <p>
@@ -223,7 +223,7 @@ the input list, this call is a no-op.
 
 **Argument:** 
   + **In Haskell:** [`List`](#types-List) [`Address`](#types-Address)
-  + **In Michelson:** `(list address)`
+  + **In Michelson:** `list address`
     + **Example:** <span id="example-id">`{ "KT1AEseqMV6fk2vtvQCVyA7ZCaxv7cpxtXdB" }`</span>
 
 <p>
@@ -254,7 +254,7 @@ The sender must have a `maintainer` role.
 
 **Argument:** 
   + **In Haskell:** [`Configuration`](#types-Configuration)
-  + **In Michelson:** `(pair (pair nat nat) nat nat)`
+  + **In Michelson:** `pair (pair nat nat) nat nat`
     + **Example:** <span id="example-id">`Pair (Pair 0 0) (Pair 0 0)`</span>
 
 <p>
@@ -286,7 +286,7 @@ A new proposal for the given IPFS URI will be initialized using the current
 
 **Argument:** 
   + **In Haskell:** (***proposal_uri*** : [`URI`](#types-URI), ***choices*** : [`List`](#types-List) [`Text`](#types-Text))
-  + **In Michelson:** `(pair string (list string))`
+  + **In Michelson:** `pair string (list string)`
     + **Example:** <span id="example-id">`Pair "hello" { "hello" }`</span>
 
 <p>
@@ -318,7 +318,7 @@ Takes the proposal's IPFS URI and a choice index (zero-based).
 
 **Argument:** 
   + **In Haskell:** (***proposal_uri*** : [`URI`](#types-URI), ***choice_index*** : [`Natural`](#types-Natural))
-  + **In Michelson:** `(pair string nat)`
+  + **In Michelson:** `pair string nat`
     + **Example:** <span id="example-id">`Pair "hello" 0`</span>
 
 <p>
@@ -357,7 +357,7 @@ used to check the governance token's balance of a `participant` that used the
 
 **Argument:** 
   + **In Haskell:** [`List`](#types-List) [`BalanceResponseItem`](#types-BalanceResponseItem)
-  + **In Michelson:** `(list (pair (pair address nat) nat))`
+  + **In Michelson:** `list (pair (pair address nat) nat)`
     + **Example:** <span id="example-id">`{ Pair (Pair "KT1AEseqMV6fk2vtvQCVyA7ZCaxv7cpxtXdB" 0) 0 }`</span>
 
 <p>
