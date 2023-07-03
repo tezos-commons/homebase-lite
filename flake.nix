@@ -8,7 +8,7 @@
 
   inputs.morley-infra.url = "gitlab:morley-framework/morley-infra";
 
-  outputs = inputs@{ self, flake-utils, morley-infra, ... }:
+  outputs = { self, flake-utils, morley-infra, ... }:
     (flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         pkgs = morley-infra.legacyPackages.${system};
@@ -145,9 +145,9 @@
               homebase-lite document --output $out/documentation.md
             '';
 
-            contract-doc-release = { sha, date }@commitInfo: self.utils.${system}.contract-doc ({ release = true; commitSha = sha; commitDate = date; });
+            contract-doc-release = { sha, date }: self.utils.${system}.contract-doc ({ release = true; commitSha = sha; commitDate = date; });
 
-            build-release = { sha, date }@commitInfo:
+            build-release = { sha, date }:
               (hs-pkgs { release = true; optimize = true; commitSha = sha; commitDate = date; }).homebase-lite.components.exes.homebase-lite;
           };
         }
