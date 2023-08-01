@@ -1,6 +1,6 @@
 # Homebase Lite
 
-**Code revision:** [64e4deb](https://github.com/tezos-commons/homebase-lite/commit/64e4deba018e0159c9451bd6cb50f853663c81f7) *(Mon Jul 3 20:12:36 2023 +0300)*
+**Code revision:** [cdd89c2](https://github.com/tezos-commons/homebase-lite/commit/cdd89c2169d61dfa9860422630a9894d2217f3a1) *(Tue Aug 1 17:08:42 2023 +0300)*
 
 
 
