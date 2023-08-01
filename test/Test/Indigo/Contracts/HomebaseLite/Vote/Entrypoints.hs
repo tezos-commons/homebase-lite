@@ -68,7 +68,7 @@ test_propose = testGroup "propose entrypoint"
 test_vote :: IO TestTree
 test_vote = do
   time <- getCurrentTime
-  let myScenario :: Monad m => Natural -> MText -> Int -> Integer -> Maybe LabelEx -> Scenario m
+  let myScenario :: Natural -> MText -> Int -> Integer -> Maybe LabelEx -> Scenario m
       myScenario idx uri nvotes delta expectation
         = scenario $ maybe id (\(LabelEx label) -> expectCustomErrorNoArg label) expectation do
           ts <- getNow

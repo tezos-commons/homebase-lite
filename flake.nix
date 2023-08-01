@@ -15,7 +15,7 @@
 
         pkgsStatic = pkgs.pkgsCross.musl64;
 
-        inherit (morley-infra.utils.${system}) linker-workaround weeder-hacks run-chain-tests;
+        inherit (morley-infra.utils.${system}) linker-workaround ci-apps run-chain-tests;
 
         # all local packages and their subdirectories
         # we need to know subdirectories for weeder and for cabal check
@@ -53,22 +53,18 @@
             modules = [
               # common options for all local packages:
               {
-                packages = pkgs.lib.genAttrs local-packages-names (packageName: {
+                packages = pkgs.lib.genAttrs local-packages-names (packageName: ci-apps.collect-hie release {
                   ghcOptions = with pkgs.lib;
                     # we use O1 for production binaries in order to improve their performance
                     # for end-users
                     [ (if optimize then "-O1" else "-O0") "-Werror"]
                     # override linker to work around issues with Template Haskell
                     ++ optionals static [ "-pgml=${linker-workaround pkgsStatic}" ]
-                    # produce *.dump-hi files, required for weeder:
-                    ++ optionals (!release) ["-ddump-to-file" "-ddump-hi"]
                     # do not erase any 'assert' calls
                     ++ optionals (!release) ["-fno-ignore-asserts"];
                   dontStrip = !release;  # strip in release mode, reduces closure size
                   doHaddock = !release;  # don't haddock in release mode
 
-                  # in non-release mode collect all *.dump-hi files (required for weeder)
-                  postInstall = if release then null else weeder-hacks.collect-dump-hi-files;
                   preBuild = ''
                     export MORLEY_DOC_GIT_COMMIT_SHA=${if release then pkgs.lib.escapeShellArg commitSha else "UNSPECIFIED"}
                     export MORLEY_DOC_GIT_COMMIT_DATE=${if release then pkgs.lib.escapeShellArg commitDate else "UNSPECIFIED"}
@@ -109,12 +105,6 @@
           devShells.default = (flake).devShell;
 
           packages = {
-            # a derivation which generates a script for running weeder
-            weeder-script = morley-infra.utils.${system}.weeder-script {
-              hs-pkgs = hs-pkgs-development;
-              inherit local-packages;
-            };
-
             default = self.packages.${system}.all-components;
 
             # a list of all components from all packages in the project
@@ -149,6 +139,13 @@
 
             build-release = { sha, date }:
               (hs-pkgs { release = true; optimize = true; commitSha = sha; commitDate = date; }).homebase-lite.components.exes.homebase-lite;
+          };
+        }
+
+        {
+          apps = ci-apps.apps {
+            hs-pkgs = hs-pkgs-development;
+            inherit local-packages projectSrc;
           };
         }
       ]));
