@@ -14,9 +14,8 @@ import Unsafe.Coerce (unsafeCoerce)
 
 import Morley.Michelson.Optimizer hiding (optimize)
 import Morley.Michelson.Optimizer.Utils (pattern (:#))
-import Morley.Michelson.Typed (Instr(..), Value)
-import Morley.Util.Peano
-  (Decrement, Drop, IsLongerOrSameLength, IsLongerThan, LazyTake, Take, pattern S, pattern Z)
+import Morley.Michelson.Typed (DupableScope, Instr(..))
+import Morley.Util.Peano (Drop, IsLongerOrSameLength, IsLongerThan, LazyTake, pattern S, pattern Z)
 import Morley.Util.PeanoNatural (PeanoNatural(..), eqPeanoNat, fromPeanoNatural)
 import Morley.Util.Type (type (++))
 
@@ -52,34 +51,30 @@ dupDipDownstream = Rule go
       DUP :# DIP arg :# xs -> go $ DUPN One :# DIPN One arg :# xs
       DUPN n :# DIP arg :# xs -> go $ DUPN n :# DIPN One arg :# xs
       DUP :# DIPN m arg :# xs -> go $ DUPN One :# DIPN m arg :# xs
-      (DUPN (n@(Succ _ :: PeanoNatural m) :: PeanoNatural n) :: Instr inp t)
-        :# (DIPN (Succ (k :: PeanoNatural k)) (x :: Instr s s') :: Instr t out)
-        :# xs
+      DUPN n@Succ{} :# DIPN (Succ k) x :# xs
         | fromPeanoNatural n <= fromPeanoNatural k
-        , Refl :: t' :~: Take k inp ++ s' <- unsafeCoerce Refl
-        , Refl :: IsLongerOrSameLength t' n :~: 'True <- unsafeCoerce Refl
-        , Refl :: LazyTake (Decrement n) t' ++ (a ': Drop n t') :~: t' <- unsafeCoerce Refl
-        , Refl :: out :~: a ': t' <- unsafeCoerce Refl
-        -> Just $ (DIPN k x :: Instr inp t') :# DUPN n :# xs
+        -> Just $ DIPN k x :# unsafeDupn n :# xs
       _ -> Nothing
+
+    -- GHC has some trouble picking instances in-context, hence a separate function
+    unsafeDupn :: forall n inp a. DupableScope a => PeanoNatural ('S n) -> Instr inp (a : inp)
+    unsafeDupn n
+      | Refl :: IsLongerOrSameLength inp ('S n) :~: 'True <- unsafeCoerce Refl
+      , Refl :: LazyTake n inp ++ (a ': Drop ('S n) inp) :~: inp <- unsafeCoerce Refl
+      = DUPN n
 
 pushDipDug :: Rule
 pushDipDug = Rule \case
-  (PUSH (a :: Value a) :: Instr inp t)
-    :# DIPN (Succ x) (DROP :: Instr s1 s2)
-    :# (DUG (y :: PeanoNatural n) :: Instr t1 out) :# xs
-    | Refl :: (LazyTake n inp) ++ (d ': s2) :~: inp <- unsafeCoerce Refl
+  PUSH @a @inp a :# DIPN (Succ x) (DROP @d @s2) :# DUG @n @_ @out y :# xs
+    | Just Refl <- eqPeanoNat x y
     , Refl :: (LazyTake n inp) ++ (a ': s2) :~: out <- unsafeCoerce Refl
-    , Refl :: (d ': s2) :~: Drop n inp <- unsafeCoerce Refl
     , Refl :: (a ': s2) :~: Drop n out <- unsafeCoerce Refl
-    , Just Refl <- eqPeanoNat x y
     -> Just $ DIPN @n @inp @out @(d ': s2) @(a ': s2) y (DROP :# PUSH a) :# xs
   _ -> Nothing
 
 dupDipDrop :: Rule
 dupDipDrop = Rule \case
-  (DUPN (Succ (x :: PeanoNatural n)) :: Instr inp t)
-    :# (DIPN (Succ (y :: PeanoNatural m)) DROP :: Instr t out) :# xs
+  DUPN @_ @inp @_ @a (Succ @_ @n x) :# DIPN @_ @_ @out (Succ @_ @m y) DROP :# xs
     | Refl :: out :~: a ': LazyTake n inp ++ Drop ('S n) inp <- unsafeCoerce Refl
     , Refl :: inp :~: LazyTake n (Drop ('S 'Z) out) ++ a ': Drop ('S n) out <- unsafeCoerce Refl
     , Refl :: IsLongerThan inp n :~: 'True <- unsafeCoerce Refl
@@ -89,18 +84,11 @@ dupDipDrop = Rule \case
 
 dugDipSwap :: Rule
 dugDipSwap = Rule \case
-  (DUG (n :: PeanoNatural n) :: Instr inp t)
-    :# (DIPN (m :: PeanoNatural m) (i :: Instr s s') :: Instr t out)
-    :# xs
+  DUG @n @inp @d n :# DIPN @m @_ @_ @s @s' m i :# xs
     | fromPeanoNatural n < fromPeanoNatural m
     , Refl :: IsLongerOrSameLength inp m :~: 'True <- unsafeCoerce Refl
-    , Refl :: IsLongerThan out n :~: 'True <- unsafeCoerce Refl
-    , Refl :: LazyTake m (b : Drop ('S 'Z) inp) ++ s' :~: d <- unsafeCoerce Refl
+    , Refl :: LazyTake m inp ++ s :~: inp <- unsafeCoerce Refl
     , Refl :: s' :~: Drop m d <- unsafeCoerce Refl
-    , Refl :: LazyTake n (Drop ('S 'Z) d) ++ (a : Drop ('S n) d) :~: out <- unsafeCoerce Refl
-    , Refl :: a : LazyTake n out ++ Drop ('S n) out :~: d <- unsafeCoerce Refl
-    , Refl :: inp :~: b ': Drop ('S 'Z) inp <- unsafeCoerce Refl
-    , Refl :: LazyTake m (b : Drop ('S 'Z) inp) ++ s :~: b : Drop ('S 'Z) inp <- unsafeCoerce Refl
-    , Refl :: s :~: Drop m (b : Drop ('S 'Z) inp) <- unsafeCoerce Refl
+    , Refl :: s :~: Drop m inp <- unsafeCoerce Refl
     -> Just $ DIPN m i :# DUG n :# xs
   _ -> Nothing

@@ -4,4 +4,5 @@
 /.stack-work
 
 # nix output
-result
+/result
+/weeder.dhall
